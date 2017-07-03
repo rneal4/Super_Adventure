@@ -94,79 +94,28 @@ namespace SuperAdventure
                     {
                         if (!playerAlreadyCompletedQuest)
                         {
-                            bool playerHasAllItemsToCompleteQuest = true;
-
-                            foreach (QuestCompletionItem qci in newLocation.QuestAvailableHere.QuestCompletionItems)
-                            {
-                                bool foundItemInPlayersInventory = false;
-
-                                foreach (InventoryItem ii in _player.Inventory)
-                                {
-                                    if (ii.Details.ID == qci.Details.ID)
-                                    {
-                                        foundItemInPlayersInventory = true;
-                                        playerHasAllItemsToCompleteQuest = ii.Quantity >= qci.Quantity;
-                                        break;
-                                    }
-                                }
-
-                                if (!foundItemInPlayersInventory)
-                                {
-                                    playerHasAllItemsToCompleteQuest = false;
-                                    break;
-                                }
-                            }
+                            bool playerHasAllItemsToCompleteQuest = _player.HasAllQuestCompletionItems(newLocation.QuestAvailableHere);
 
                             if (playerHasAllItemsToCompleteQuest)
                             {
                                 rtbMessages.Text += Environment.NewLine;
                                 rtbMessages.Text += $"You complete the {newLocation.QuestAvailableHere.Name} quest.{Environment.NewLine}";
 
-                                foreach (QuestCompletionItem qci in newLocation.QuestAvailableHere.QuestCompletionItems)
-                                {
-                                    foreach (InventoryItem ii in _player.Inventory)
-                                    {
-                                        if (ii.Details.ID == qci.Details.ID)
-                                        {
-                                            ii.Quantity -= qci.Quantity;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
+                                _player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);
 
-                            //Give quest rewards
-                            rtbMessages.Text += $"You receive: {Environment.NewLine}";
-                            rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardExperiencePoints} experience points{Environment.NewLine}";
-                            rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardGold} gold{Environment.NewLine}";
-                            rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardItem}{Environment.NewLine}";
-                            rtbMessages.Text += Environment.NewLine;
+                                //Give quest rewards
+                                rtbMessages.Text += $"You receive: {Environment.NewLine}";
+                                rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardExperiencePoints} experience points{Environment.NewLine}";
+                                rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardGold} gold{Environment.NewLine}";
+                                rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardItem}{Environment.NewLine}";
+                                rtbMessages.Text += Environment.NewLine;
 
-                            _player.ExperiencePoints += newLocation.QuestAvailableHere.RewardExperiencePoints;
-                            _player.Gold += newLocation.QuestAvailableHere.RewardGold;
+                                _player.ExperiencePoints += newLocation.QuestAvailableHere.RewardExperiencePoints;
+                                _player.Gold += newLocation.QuestAvailableHere.RewardGold;
 
-                            bool addedItemToPlayerInventory = false;
+                                _player.AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);
 
-                            foreach (InventoryItem ii in _player.Inventory)
-                            {
-                                if (ii.Details.ID == newLocation.QuestAvailableHere.RewardItem.ID)
-                                {
-                                    ii.Quantity++;
-                                    addedItemToPlayerInventory = true;
-                                    break;
-                                }
-                            }
-
-                            if (!addedItemToPlayerInventory)
-                                _player.Inventory.Add(new InventoryItem(newLocation.QuestAvailableHere.RewardItem, 1));
-
-                            foreach (PlayerQuest pq in _player.Quests)
-                            {
-                                if (pq.Details.ID == newLocation.QuestAvailableHere.ID)
-                                {
-                                    pq.IsCompleted = true;
-                                    break;
-                                }
+                                _player.MarkQuestCompleted(newLocation.QuestAvailableHere);
                             }
                         }
                     }
