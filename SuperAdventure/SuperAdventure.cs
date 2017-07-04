@@ -165,6 +165,17 @@ namespace SuperAdventure
                 btnUsePotion.Visible = false;
             }
 
+            UpdateInventoryListInUI();
+
+            UpdateQuestListInUI();
+
+            UpdateWeaponListInUI();
+
+            UpdatePotionListInUI();
+        }
+
+        private void UpdateInventoryListInUI()
+        {
             dgvInventory.RowHeadersVisible = false;
 
             dgvInventory.ColumnCount = 2;
@@ -179,7 +190,10 @@ namespace SuperAdventure
                 if (inventoryItem.Quantity > 0)
                     dgvInventory.Rows.Add(inventoryItem.Details.Name, inventoryItem.Quantity.ToString());
             }
+        }
 
+        private void UpdateQuestListInUI()
+        {
             dgvQuests.RowHeadersVisible = false;
 
             dgvQuests.ColumnCount = 2;
@@ -193,13 +207,19 @@ namespace SuperAdventure
             {
                 dgvQuests.Rows.Add(playerQuest.Details.Name, playerQuest.IsCompleted.ToString());
             }
+        }
 
+        private void UpdateWeaponListInUI()
+        {
             List<Weapon> weapons = new List<Weapon>();
 
             foreach (InventoryItem inventoryItem in _player.Inventory)
             {
-                if (inventoryItem.Details is Weapon && inventoryItem.Quantity > 0)
-                    weapons.Add((Weapon)inventoryItem.Details);
+                if (inventoryItem.Details is Weapon)
+                {
+                    if (inventoryItem.Quantity > 0)
+                        weapons.Add((Weapon)inventoryItem.Details);
+                }
             }
 
             if (weapons.Count == 0)
@@ -212,15 +232,22 @@ namespace SuperAdventure
                 cboWeapons.DataSource = weapons;
                 cboWeapons.DisplayMember = "Name";
                 cboWeapons.ValueMember = "ID";
+
                 cboWeapons.SelectedIndex = 0;
             }
+        }
 
+        private void UpdatePotionListInUI()
+        {
             List<HealingPotion> healingPotions = new List<HealingPotion>();
 
             foreach (InventoryItem inventoryItem in _player.Inventory)
             {
-                if (inventoryItem.Details is HealingPotion && inventoryItem.Quantity > 0)
-                    healingPotions.Add((HealingPotion)inventoryItem.Details);
+                if (inventoryItem.Details is HealingPotion)
+                {
+                    if (inventoryItem.Quantity > 0)
+                        healingPotions.Add((HealingPotion)inventoryItem.Details);
+                }
             }
 
             if (healingPotions.Count == 0)
@@ -233,6 +260,7 @@ namespace SuperAdventure
                 cboPotions.DataSource = healingPotions;
                 cboPotions.DisplayMember = "Name";
                 cboPotions.ValueMember = "ID";
+
                 cboPotions.SelectedIndex = 0;
             }
         }
