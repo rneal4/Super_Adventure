@@ -72,8 +72,25 @@ namespace SuperAdventure
                 rtbMessages.Text += $"You receieve {_currentMonster.RewardGold} gold{Environment.NewLine}";
 
                 List<InventoryItem> lootedItems = new List<InventoryItem>();
+
+                foreach (LootItem lootItem in _currentMonster.LootTable)
+                {
+                    if (RandomNumberGenerator.NumberBetween(1, 100) <= lootItem.DropPercentage)
+                        lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+                }
+
+                if (lootedItems.Count == 0)
+                {
+                    foreach (LootItem lootItem in _currentMonster.LootTable)
+                    {
+                        if (lootItem.IsDefaultItem)
+                            lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+                    }
+                }
+
+
             }
-        }
+        }           
 
         private void btnUsePotion_Click(object sender, EventArgs e)
         {
