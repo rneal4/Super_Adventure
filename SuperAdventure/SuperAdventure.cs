@@ -52,7 +52,27 @@ namespace SuperAdventure
 
         private void btnUseWeapon_Click(object sender, EventArgs e)
         {
+            Weapon currentWeapon = (Weapon)cboPotions.SelectedItem;
 
+            int damageToMonster = RandomNumberGenerator.NumberBetween(currentWeapon.MinimumDamage, currentWeapon.MaximumDamage);
+
+            _currentMonster.CurrentHitPoints -= damageToMonster;
+
+            rtbMessages.Text += $"You hit the {_currentMonster.Name} for {damageToMonster} points.{Environment.NewLine}";
+
+            if (_currentMonster.CurrentHitPoints <= 0)
+            {
+                rtbMessages.Text += Environment.NewLine;
+                rtbMessages.Text += $"You defeated the {_currentMonster.Name}{Environment.NewLine}";
+
+                _player.ExperiencePoints += _currentMonster.RewardExperiencePoints;
+                rtbMessages.Text += $"You receive {_currentMonster.RewardExperiencePoints} experience points{Environment.NewLine}";
+
+                _player.Gold += _currentMonster.RewardGold;
+                rtbMessages.Text += $"You receieve {_currentMonster.RewardGold} gold{Environment.NewLine}";
+
+                List<InventoryItem> lootedItems = new List<InventoryItem>();
+            }
         }
 
         private void btnUsePotion_Click(object sender, EventArgs e)

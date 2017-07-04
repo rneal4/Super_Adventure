@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    class RandomNumberGenerator
+    public static class RandomNumberGenerator
     {
         private static Random _genertor = new Random();
 
