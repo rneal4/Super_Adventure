@@ -52,7 +52,7 @@ namespace SuperAdventure
 
         private void btnUseWeapon_Click(object sender, EventArgs e)
         {
-            Weapon currentWeapon = (Weapon)cboPotions.SelectedItem;
+            Weapon currentWeapon = (Weapon)cboWeapons.SelectedItem;
 
             int damageToMonster = RandomNumberGenerator.NumberBetween(currentWeapon.MinimumDamage, currentWeapon.MaximumDamage);
 
@@ -180,53 +180,52 @@ namespace SuperAdventure
                         $"to enter this location.{Environment.NewLine}";
                     return;
                 }
+            }
 
-                _player.CurrentLocation = newLocation;
+            _player.CurrentLocation = newLocation;
 
-                btnNorth.Visible = (newLocation.LocationToNorth != null);
-                btnEast.Visible = (newLocation.LocationToEast != null);
-                btnSouth.Visible = (newLocation.LocationToSouth != null);
-                btnWest.Visible = (newLocation.LocationToWest != null);
+            btnNorth.Visible = (newLocation.LocationToNorth != null);
+            btnEast.Visible = (newLocation.LocationToEast != null);
+            btnSouth.Visible = (newLocation.LocationToSouth != null);
+            btnWest.Visible = (newLocation.LocationToWest != null);
 
-                rtbLocation.Text = $"{newLocation.Name}{Environment.NewLine}";
-                rtbLocation.Text += $"{newLocation.Description}{Environment.NewLine}";
+            rtbLocation.Text = $"{newLocation.Name}{Environment.NewLine}";
+            rtbLocation.Text += $"{newLocation.Description}{Environment.NewLine}";
 
-                _player.CurrentHitPoints = _player.MaximumHitPoints;
+            _player.CurrentHitPoints = _player.MaximumHitPoints;
 
-                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
 
-                if (newLocation.QuestAvailableHere != null)
+            if (newLocation.QuestAvailableHere != null)
+            {
+                bool playerAlreadyHasQuest = _player.HasThisQuest(newLocation.QuestAvailableHere);
+                bool playerAlreadyCompletedQuest = _player.CompletedThisQuest(newLocation.QuestAvailableHere);
+
+                if (playerAlreadyHasQuest)
                 {
-                    bool playerAlreadyHasQuest = _player.HasThisQuest(newLocation.QuestAvailableHere);
-                    bool playerAlreadyCompletedQuest = _player.CompletedThisQuest(newLocation.QuestAvailableHere);
-
-                    if (playerAlreadyHasQuest)
+                    if (!playerAlreadyCompletedQuest)
                     {
-                        if (!playerAlreadyCompletedQuest)
+                        bool playerHasAllItemsToCompleteQuest = _player.HasAllQuestCompletionItems(newLocation.QuestAvailableHere);
+
+                        if (playerHasAllItemsToCompleteQuest)
                         {
-                            bool playerHasAllItemsToCompleteQuest = _player.HasAllQuestCompletionItems(newLocation.QuestAvailableHere);
+                            rtbMessages.Text += Environment.NewLine;
+                            rtbMessages.Text += $"You complete the {newLocation.QuestAvailableHere.Name} quest.{Environment.NewLine}";
 
-                            if (playerHasAllItemsToCompleteQuest)
-                            {
-                                rtbMessages.Text += Environment.NewLine;
-                                rtbMessages.Text += $"You complete the {newLocation.QuestAvailableHere.Name} quest.{Environment.NewLine}";
+                            _player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);
 
-                                _player.RemoveQuestCompletionItems(newLocation.QuestAvailableHere);
+                            rtbMessages.Text += $"You receive: {Environment.NewLine}";
+                            rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardExperiencePoints} experience points{Environment.NewLine}";
+                            rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardGold} gold{Environment.NewLine}";
+                            rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardItem.Name}{Environment.NewLine}";
+                            rtbMessages.Text += Environment.NewLine;
 
-                                //Give quest rewards
-                                rtbMessages.Text += $"You receive: {Environment.NewLine}";
-                                rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardExperiencePoints} experience points{Environment.NewLine}";
-                                rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardGold} gold{Environment.NewLine}";
-                                rtbMessages.Text += $"{newLocation.QuestAvailableHere.RewardItem}{Environment.NewLine}";
-                                rtbMessages.Text += Environment.NewLine;
+                            _player.ExperiencePoints += newLocation.QuestAvailableHere.RewardExperiencePoints;
+                            _player.Gold += newLocation.QuestAvailableHere.RewardGold;
 
-                                _player.ExperiencePoints += newLocation.QuestAvailableHere.RewardExperiencePoints;
-                                _player.Gold += newLocation.QuestAvailableHere.RewardGold;
+                            _player.AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);
 
-                                _player.AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);
-
-                                _player.MarkQuestCompleted(newLocation.QuestAvailableHere);
-                            }
+                            _player.MarkQuestCompleted(newLocation.QuestAvailableHere);
                         }
                     }
                 }
@@ -247,6 +246,7 @@ namespace SuperAdventure
                     _player.Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere));
                 }
             }
+
 
             if (newLocation.MonsterLivingHere != null)
             {

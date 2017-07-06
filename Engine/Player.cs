@@ -110,9 +110,9 @@ namespace Engine
                     ii.Quantity++;
                     return;
                 }
-
-                Inventory.Add(new InventoryItem(itemToAdd, 1));
             }
+
+            Inventory.Add(new InventoryItem(itemToAdd, 1));
         }
 
         public void MarkQuestCompleted(Quest quest)
