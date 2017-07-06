@@ -88,13 +88,86 @@ namespace SuperAdventure
                     }
                 }
 
+                foreach (InventoryItem inventoryItem in lootedItems)
+                {
+                    _player.AddItemToInventory(inventoryItem.Details);
 
+                    if (inventoryItem.Quantity == 1)
+                        rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.Name}{Environment.NewLine}";
+                    else
+                        rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural}{Environment.NewLine}";
+                }
+
+                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+                lblGold.Text = _player.Gold.ToString();
+                lblExperience.Text = _player.ExperiencePoints.ToString();
+                lblLevel.Text = _player.Level.ToString();
+
+                UpdateInventoryListInUI();
+                UpdateWeaponListInUI();
+                UpdatePotionListInUI();
+
+                rtbMessages.Text += Environment.NewLine;
+
+                MoveTo(_player.CurrentLocation);
+            }
+            else
+            {
+                int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);
+
+                rtbLocation.Text += $"The {_currentMonster.Name} did {damageToPlayer} points of damage.{Environment.NewLine}";
+
+                _player.CurrentHitPoints -= damageToPlayer;
+
+                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+
+                if (_player.CurrentHitPoints <= 0)
+                {
+                    rtbMessages.Text += $"The {_currentMonster.Name} killed you.{Environment.NewLine}";
+
+                    MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+                }
             }
         }           
 
         private void btnUsePotion_Click(object sender, EventArgs e)
         {
+            HealingPotion potion = (HealingPotion)cboPotions.SelectedItem;
 
+            _player.CurrentHitPoints = (_player.CurrentHitPoints + potion.AmountToHeal);
+
+            if (_player.CurrentHitPoints > _player.MaximumHitPoints)
+                _player.CurrentHitPoints = _player.MaximumHitPoints;
+
+            foreach (InventoryItem ii in _player.Inventory)
+            {
+                if (ii.Details.ID == potion.ID)
+                {
+                    ii.Quantity--;
+                    break;
+                }
+            }
+
+            rtbMessages.Text += $"You drink a {potion.Name}{Environment.NewLine}";
+
+            int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);
+
+            rtbLocation.Text += $"The {_currentMonster.Name} did {damageToPlayer} points of damage.{Environment.NewLine}";
+
+            _player.CurrentHitPoints -= damageToPlayer;
+
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+
+            if (_player.CurrentHitPoints <= 0)
+            {
+                rtbMessages.Text += $"The {_currentMonster.Name} killed you.{Environment.NewLine}";
+
+                MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+            }
+
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            UpdateInventoryListInUI();
+            UpdatePotionListInUI();
         }
 
         private void MoveTo(Location newLocation)
