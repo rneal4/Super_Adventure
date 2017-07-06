@@ -19,7 +19,7 @@ namespace SuperAdventure
         {
             InitializeComponent();
 
-            _player = new Player(10, 10, 20, 0, 1);
+            _player = new Player(10, 10, 20, 0);
             MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
             _player.Inventory.Add(new InventoryItem(World.ItemByID(World.ITEM_ID_RUSTY_SWORD), 1));
 
@@ -98,11 +98,7 @@ namespace SuperAdventure
                         rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural}{Environment.NewLine}";
                 }
 
-                lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-                lblGold.Text = _player.Gold.ToString();
-                lblExperience.Text = _player.ExperiencePoints.ToString();
-                lblLevel.Text = _player.Level.ToString();
-
+                UpdatePlayerStats();
                 UpdateInventoryListInUI();
                 UpdateWeaponListInUI();
                 UpdatePotionListInUI();
@@ -128,6 +124,8 @@ namespace SuperAdventure
                     MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
                 }
             }
+
+            ScrollToBottomOfMessages();
         }           
 
         private void btnUsePotion_Click(object sender, EventArgs e)
@@ -168,6 +166,8 @@ namespace SuperAdventure
             lblHitPoints.Text = _player.CurrentHitPoints.ToString();
             UpdateInventoryListInUI();
             UpdatePotionListInUI();
+
+            ScrollToBottomOfMessages();
         }
 
         private void MoveTo(Location newLocation)
@@ -221,6 +221,7 @@ namespace SuperAdventure
                             rtbMessages.Text += Environment.NewLine;
 
                             _player.ExperiencePoints += newLocation.QuestAvailableHere.RewardExperiencePoints;
+
                             _player.Gold += newLocation.QuestAvailableHere.RewardGold;
 
                             _player.AddItemToInventory(newLocation.QuestAvailableHere.RewardItem);
@@ -246,7 +247,6 @@ namespace SuperAdventure
                     _player.Quests.Add(new PlayerQuest(newLocation.QuestAvailableHere));
                 }
             }
-
 
             if (newLocation.MonsterLivingHere != null)
             {
@@ -274,14 +274,13 @@ namespace SuperAdventure
                 btnUseWeapon.Visible = false;
                 btnUsePotion.Visible = false;
             }
-
+            
+            UpdatePlayerStats();
             UpdateInventoryListInUI();
-
             UpdateQuestListInUI();
-
             UpdateWeaponListInUI();
-
             UpdatePotionListInUI();
+            ScrollToBottomOfMessages();
         }
 
         private void UpdateInventoryListInUI()
@@ -373,6 +372,20 @@ namespace SuperAdventure
 
                 cboPotions.SelectedIndex = 0;
             }
+        }
+
+        private void ScrollToBottomOfMessages()
+        {
+            rtbMessages.SelectionStart = rtbMessages.Text.Length;
+            rtbMessages.ScrollToCaret();
+        }
+
+        private void UpdatePlayerStats()
+        {
+            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
+            lblGold.Text = _player.Gold.ToString();
+            lblExperience.Text = _player.ExperiencePoints.ToString();
+            lblLevel.Text = _player.Level.ToString();
         }
     }
 }
