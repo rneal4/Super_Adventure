@@ -36,6 +36,7 @@ namespace Engine
             return player;
         }
 
+        [Obsolete]
         public static Player CreatePlayerFromXMLString(string xmlPlayerData)
         {
             try
@@ -151,6 +152,7 @@ namespace Engine
                 playerQuest.IsCompleted = true;
         }
 
+        [Obsolete]
         public string ToXMLString()
         {
             XmlDocument playerData = new XmlDocument();

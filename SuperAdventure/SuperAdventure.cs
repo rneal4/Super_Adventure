@@ -16,13 +16,13 @@ namespace SuperAdventure
     {
         private Player _player;
         private Monster _currentMonster;
-        private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
+        private const string PLAYER_DATA_FILE_NAME = "PlayerData.json";
         public SuperAdventure()
         {
             InitializeComponent();
 
             if (File.Exists(PLAYER_DATA_FILE_NAME))
-                _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+                _player = Player.CreatePlayerFromJSON(File.ReadAllText(PLAYER_DATA_FILE_NAME));
             else
                 _player = Player.CreateDefaultPlayer();
 
@@ -390,7 +390,7 @@ namespace SuperAdventure
 
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
-            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXMLString());
+            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToJSON());
         }
     }
 }
