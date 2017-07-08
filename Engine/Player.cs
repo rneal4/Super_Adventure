@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Newtonsoft.Json;
 
 namespace Engine
 {
@@ -79,6 +80,11 @@ namespace Engine
             {
                 return Player.CreateDefaultPlayer();
             }
+        }
+
+        public static Player CreatePlayerFromJSON(string jsonData)
+        {
+            return JsonConvert.DeserializeObject<Player>(jsonData);
         }
 
         public bool HasRequiredItemToEnterThisLocation(Location location)
@@ -208,6 +214,11 @@ namespace Engine
             }
 
             return playerData.InnerXml;
+        }
+
+        public string ToJSON()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }
