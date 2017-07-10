@@ -11,7 +11,7 @@ namespace Engine
     public class Player : LivingCreature
     {
         public int Gold { get; set; }
-        public int ExperiencePoints { get; set; }
+        public int ExperiencePoints { get; private set; }
         public int Level => ((ExperiencePoints / 100) + 1);
         public List<InventoryItem> Inventory { get; set; }
         public List<PlayerQuest> Quests { get; set; }
@@ -38,7 +38,13 @@ namespace Engine
             return player;
         }
 
-        [Obsolete]
+        public void AddExperiencePoints(int experiencePointsToAdd)
+        {
+            ExperiencePoints += experiencePointsToAdd;
+            MaximumHitPoints = (Level * 10);
+        }
+
+        [Obsolete("Use CreatePlayerFromJSON")]
         public static Player CreatePlayerFromXMLString(string xmlPlayerData)
         {
             try
@@ -154,7 +160,7 @@ namespace Engine
                 playerQuest.IsCompleted = true;
         }
 
-        [Obsolete]
+        [Obsolete("Use ToJSON")]
         public string ToXMLString()
         {
             XmlDocument playerData = new XmlDocument();
