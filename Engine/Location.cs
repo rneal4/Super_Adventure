@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,9 +15,17 @@ namespace Engine
         public Item ItemRequiredToEnter { get; set; }
         public Quest QuestAvailableHere { get; set; }
         public Monster MonsterLivingHere { get; set; }
+
+        //[JsonProperty(IsReference = true)]
         public Location LocationToNorth { get; set; }
+
+        //[JsonProperty(IsReference = true)]
         public Location LocationToEast { get; set; }
+
+        //[JsonProperty(IsReference = true)]
         public Location LocationToSouth { get; set; }
+
+        //[JsonProperty(IsReference = true)]
         public Location LocationToWest { get; set; }
 
 

@@ -16,18 +16,23 @@ namespace SuperAdventure
     {
         private Player _player;
         private Monster _currentMonster;
-        private const string PLAYER_DATA_FILE_NAME = "PlayerData.json";
+        private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
         public SuperAdventure()
         {
             InitializeComponent();
 
             if (File.Exists(PLAYER_DATA_FILE_NAME))
-                _player = Player.CreatePlayerFromJSON(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+                _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+            //_player = Player.CreatePlayerFromJSON(File.ReadAllText(PLAYER_DATA_FILE_NAME));
             else
                 _player = Player.CreateDefaultPlayer();
 
+            lblHitPoints.DataBindings.Add("Text", _player, "CurrentHitPoints");
+            lblGold.DataBindings.Add("Text", _player, "Gold");
+            lblExperience.DataBindings.Add("Text", _player, "ExperiencePoints");
+            lblLevel.DataBindings.Add("Text", _player, "Level");
+
             MoveTo(_player.CurrentLocation);
-            UpdatePlayerStats();
         }
 
         private void btnNorth_Click(object sender, EventArgs e)
@@ -97,8 +102,7 @@ namespace SuperAdventure
                     else
                         rtbMessages.Text += $"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural}{Environment.NewLine}";
                 }
-
-                UpdatePlayerStats();
+                
                 UpdateInventoryListInUI();
                 UpdateWeaponListInUI();
                 UpdatePotionListInUI();
@@ -275,7 +279,6 @@ namespace SuperAdventure
                 btnUsePotion.Visible = false;
             }
             
-            UpdatePlayerStats();
             UpdateInventoryListInUI();
             UpdateQuestListInUI();
             UpdateWeaponListInUI();
@@ -386,17 +389,10 @@ namespace SuperAdventure
             rtbMessages.ScrollToCaret();
         }
 
-        private void UpdatePlayerStats()
-        {
-            lblHitPoints.Text = _player.CurrentHitPoints.ToString();
-            lblGold.Text = _player.Gold.ToString();
-            lblExperience.Text = _player.ExperiencePoints.ToString();
-            lblLevel.Text = _player.Level.ToString();
-        }
-
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
-            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToJSON());
+            //File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToJSON());
+            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXMLString());
         }
 
         private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)

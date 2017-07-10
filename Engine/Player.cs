@@ -10,8 +10,29 @@ namespace Engine
 {
     public class Player : LivingCreature
     {
-        public int Gold { get; set; }
-        public int ExperiencePoints { get; private set; }
+        private int _gold;
+        public int Gold
+        {
+            get { return _gold; }
+            set
+            {
+                _gold = value;
+                OnPropertyChanged("Gold");
+            }
+        }
+        
+        private int _experiencePoints;
+        public int ExperiencePoints
+        {
+            get { return _experiencePoints; }
+            private set
+            {
+                _experiencePoints = value;
+                OnPropertyChanged("ExperiencePoints");
+                OnPropertyChanged("Level");
+            }
+        }
+
         public int Level => ((ExperiencePoints / 100) + 1);
         public List<InventoryItem> Inventory { get; set; }
         public List<PlayerQuest> Quests { get; set; }
@@ -19,6 +40,7 @@ namespace Engine
 
         public Weapon CurrentWeapon { get; set; }
 
+        //[JsonConstructor]
         private Player(int currentHitPoints, int maximumHitPoints, int gold,
             int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
@@ -28,7 +50,7 @@ namespace Engine
             Inventory = new List<InventoryItem>();
             Quests = new List<PlayerQuest>();
         }
-
+        
         public static Player CreateDefaultPlayer()
         {
             Player player = new Player(10, 10, 20, 0);
@@ -44,7 +66,7 @@ namespace Engine
             MaximumHitPoints = (Level * 10);
         }
 
-        [Obsolete("Use CreatePlayerFromJSON")]
+        //[Obsolete("Use CreatePlayerFromJSON")]
         public static Player CreatePlayerFromXMLString(string xmlPlayerData)
         {
             try
@@ -62,6 +84,12 @@ namespace Engine
 
                 int currentLocationID = Convert.ToInt32(playerData.SelectSingleNode("/Player/Stats/CurrentLocation").InnerText);
                 player.CurrentLocation = World.LocationByID(currentLocationID);
+
+                if (playerData.SelectSingleNode("/Player/Stats/CurrentWeapon") != null)
+                {
+                    int currentWeaponID = Convert.ToInt32(playerData.SelectSingleNode("/Player/Stats/CurrentWeapon").InnerText);
+                    player.CurrentWeapon = (Weapon)World.ItemByID(currentWeaponID);
+                }
 
                 foreach (XmlNode node in playerData.SelectNodes("/Player/InventoryItems/InventoryItem"))
                 {
@@ -91,10 +119,10 @@ namespace Engine
             }
         }
 
-        public static Player CreatePlayerFromJSON(string jsonData)
-        {
-            return JsonConvert.DeserializeObject<Player>(jsonData);
-        }
+        //public static Player CreatePlayerFromJSON(string jsonData)
+        //{
+        //    return JsonConvert.DeserializeObject<Player>(jsonData);
+        //}
 
         public bool HasRequiredItemToEnterThisLocation(Location location)
         {
@@ -160,7 +188,7 @@ namespace Engine
                 playerQuest.IsCompleted = true;
         }
 
-        [Obsolete("Use ToJSON")]
+        //[Obsolete("Use ToJSON")]
         public string ToXMLString()
         {
             XmlDocument playerData = new XmlDocument();
@@ -180,12 +208,24 @@ namespace Engine
             stats.AppendChild(maximumHitPoints);
 
             XmlNode gold = playerData.CreateElement("Gold");
-            gold.AppendChild(playerData.CreateTextNode(ExperiencePoints.ToString()));
+            gold.AppendChild(playerData.CreateTextNode(Gold.ToString()));
             stats.AppendChild(gold);
+
+            XmlNode experiencePoints = playerData.CreateElement("ExperiencePoints");
+            experiencePoints.AppendChild(playerData.CreateTextNode(ExperiencePoints.ToString()));
+            stats.AppendChild(experiencePoints);
+
 
             XmlNode currentLocation = playerData.CreateElement("CurrentLocation");
             currentLocation.AppendChild(playerData.CreateTextNode(CurrentLocation.ID.ToString()));
             stats.AppendChild(currentLocation);
+
+            if (CurrentWeapon != null)
+            {
+                XmlNode currentWeapon = playerData.CreateElement("CurrentWeapon");
+                currentWeapon.AppendChild(playerData.CreateTextNode(CurrentWeapon.ID.ToString()));
+                stats.AppendChild(currentWeapon);
+            }
 
             XmlNode inventoryItems = playerData.CreateElement("InventoryItems");
             player.AppendChild(inventoryItems);
@@ -226,9 +266,9 @@ namespace Engine
             return playerData.InnerXml;
         }
 
-        public string ToJSON()
-        {
-            return JsonConvert.SerializeObject(this);
-        }
+        //public string ToJSON()
+        //{
+        //     return JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.All });
+        //}
     }
 }
