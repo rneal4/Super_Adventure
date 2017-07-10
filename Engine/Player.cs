@@ -17,6 +17,8 @@ namespace Engine
         public List<PlayerQuest> Quests { get; set; }
         public Location CurrentLocation { get; set; }
 
+        public Weapon CurrentWeapon { get; set; }
+
         private Player(int currentHitPoints, int maximumHitPoints, int gold,
             int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
