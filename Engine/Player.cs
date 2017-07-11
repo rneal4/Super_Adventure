@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace Engine
 {
@@ -34,10 +35,9 @@ namespace Engine
         }
 
         public int Level => ((ExperiencePoints / 100) + 1);
-        public List<InventoryItem> Inventory { get; set; }
-        public List<PlayerQuest> Quests { get; set; }
+        public BindingList<InventoryItem> Inventory { get; set; }
+        public BindingList<PlayerQuest> Quests { get; set; }
         public Location CurrentLocation { get; set; }
-
         public Weapon CurrentWeapon { get; set; }
 
         //[JsonConstructor]
@@ -47,8 +47,8 @@ namespace Engine
             Gold = gold;
             ExperiencePoints = experiencePoints;
 
-            Inventory = new List<InventoryItem>();
-            Quests = new List<PlayerQuest>();
+            Inventory = new BindingList<InventoryItem>();
+            Quests = new BindingList<PlayerQuest>();
         }
         
         public static Player CreateDefaultPlayer()
@@ -129,12 +129,12 @@ namespace Engine
             if (location.ItemRequiredToEnter == null)
                 return true;
 
-            return Inventory.Exists(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
+            return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
         }
 
         public bool HasThisQuest(Quest quest)
         {
-            return Quests.Exists(pq => pq.Details.ID == quest.ID);
+            return Quests.Any(pq => pq.Details.ID == quest.ID);
         }
 
         public bool CompletedThisQuest(Quest quest)
@@ -152,7 +152,7 @@ namespace Engine
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                if (!Inventory.Exists(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
+                if (!Inventory.Any(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
                     return false;
             }
 
