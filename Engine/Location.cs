@@ -28,6 +28,7 @@ namespace Engine
         //[JsonProperty(IsReference = true)]
         public Location LocationToWest { get; set; }
 
+        public Vendor VendorWorkingHere { get; set; }
 
         public Location(int id, string name, string description,
             Item itemRequiredToEnter = null,
