@@ -23,13 +23,9 @@ namespace Engine
             InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToAdd.ID);
 
             if (item == null)
-            {
                 Inventory.Add(new InventoryItem(itemToAdd, quantity));
-            }
             else
-            {
                 item.Quantity += quantity;
-            }
 
             OnPropertyChanged("Inventory");
         }
