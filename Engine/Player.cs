@@ -143,7 +143,15 @@ namespace Engine
             }
         }
 
+        public static Player CreatePlayerFromDatabase(int currentHitPoints, int maximumHutPoints, int gold,
+            int experiencePoints, int currentLocationID)
+        {
+            Player player = new Player(currentHitPoints, maximumHutPoints, gold, experiencePoints);
 
+            player.MoveTo(World.LocationByID(currentLocationID));
+
+            return player;
+        }
 
 
 
