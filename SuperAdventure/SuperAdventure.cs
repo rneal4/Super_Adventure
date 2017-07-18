@@ -20,10 +20,15 @@ namespace SuperAdventure
         {
             InitializeComponent();
 
-            if (File.Exists(PLAYER_DATA_FILE_NAME))
-                _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
-            else
-                _player = Player.CreateDefaultPlayer();
+            _player = PlayerDataMapper.CreateFromDatabase();
+
+            if (_player == null)
+            {
+                if (File.Exists(PLAYER_DATA_FILE_NAME))
+                    _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+                else
+                    _player = Player.CreateDefaultPlayer();
+            }
 
             lblHitPoints.DataBindings.Add("Text", _player, "CurrentHitPoints");
             lblGold.DataBindings.Add("Text", _player, "Gold");
@@ -114,6 +119,8 @@ namespace SuperAdventure
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
             File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXMLString());
+
+            PlayerDataMapper.SaveToDatabase(_player);
         }
 
         private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)
