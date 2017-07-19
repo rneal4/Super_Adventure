@@ -284,7 +284,7 @@ namespace SuperAdventureConsole
                                 _player.AddItemToInventory(itemToBuy.Details);
                                 _player.Gold -= itemToBuy.Price;
 
-                                Console.WriteLine($"You bought one {itemToBuy.Details} for {itemToBuy.Price} gold");
+                                Console.WriteLine($"You bought one {itemToBuy.Details.Name} for {itemToBuy.Price} gold");
                             }
                         }
                     }
@@ -318,7 +318,7 @@ namespace SuperAdventureConsole
                             _player.RemoveItemFromInventory(itemToSell.Details);
                             _player.Gold += itemToSell.Price;
 
-                            Console.WriteLine($"You receive {itemToSell.Price} gold for your {itemToSell.Details}");
+                            Console.WriteLine($"You receive {itemToSell.Price} gold for your {itemToSell.Details.Name}");
                         }
 
                     }
