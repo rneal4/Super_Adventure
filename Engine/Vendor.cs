@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine
 {
@@ -27,7 +23,7 @@ namespace Engine
             else
                 item.Quantity += quantity;
 
-            OnPropertyChanged("Inventory");
+            OnPropertyChanged(nameof(Inventory));
         }
 
         public void RemoveItemFromInventory(Item itemToRemove, int quantity = 1)
@@ -36,7 +32,7 @@ namespace Engine
 
             if (item == null)
             {
-                //May want to throw unhandled exception here
+                //TODO Add Null Reference Exception
             }
             else
             {
@@ -48,7 +44,7 @@ namespace Engine
                 if (item.Quantity == 0)
                     Inventory.Remove(item);
 
-                OnPropertyChanged("Inventory");
+                OnPropertyChanged(nameof(Inventory));
             }
         }
 

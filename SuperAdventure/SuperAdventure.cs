@@ -1,14 +1,9 @@
-﻿using Engine;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using Engine;
 
 namespace SuperAdventure
 {
@@ -30,10 +25,10 @@ namespace SuperAdventure
                     _player = Player.CreateDefaultPlayer();
             }
 
-            lblHitPoints.DataBindings.Add("Text", _player, "CurrentHitPoints");
-            lblGold.DataBindings.Add("Text", _player, "Gold");
-            lblExperience.DataBindings.Add("Text", _player, "ExperiencePoints");
-            lblLevel.DataBindings.Add("Text", _player, "Level");
+            lblHitPoints.DataBindings.Add(nameof(Label.Text), _player, nameof(Player.CurrentHitPoints));
+            lblGold.DataBindings.Add(nameof(Label.Text), _player, nameof(Player.Gold));
+            lblExperience.DataBindings.Add(nameof(Label.Text), _player, nameof(Player.ExperiencePoints));
+            lblLevel.DataBindings.Add(nameof(Label.Text), _player, nameof(Player.Level));
 
             dgvInventory.RowHeadersVisible = false;
             dgvInventory.AutoGenerateColumns = false;
@@ -42,12 +37,12 @@ namespace SuperAdventure
             {
                 HeaderText = "Name",
                 Width = 197,
-                DataPropertyName = "Description"
+                DataPropertyName = nameof(InventoryItem.Description)
             });
             dgvInventory.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "Quantity",
-                DataPropertyName = "Quantity"
+                DataPropertyName = nameof(InventoryItem.Quantity)
             });
 
             dgvQuests.RowHeadersVisible = false;
@@ -57,24 +52,24 @@ namespace SuperAdventure
             {
                 HeaderText = "Name",
                 Width = 197,
-                DataPropertyName = "Name"
+                DataPropertyName = nameof(PlayerQuest.Name)
             });
             dgvQuests.Columns.Add(new DataGridViewTextBoxColumn
             {
                 HeaderText = "Done?",
-                DataPropertyName = "IsCompleted"
+                DataPropertyName = nameof(PlayerQuest.IsCompleted)
             });
 
             cboWeapons.DataSource = _player.Weapons;
-            cboWeapons.DisplayMember = "Name";
-            cboWeapons.ValueMember = "Id";
-            if (_player.CurrentWeapon != null)
-                cboWeapons.SelectedItem = _player.CurrentWeapon;
+            cboWeapons.DisplayMember = nameof(Weapon.Name);
+            cboWeapons.ValueMember = nameof(Weapon.ID);
+            if (_player.HasWeaponEquiped)
+                cboWeapons.SelectedItem = _player.EquipedWeapon;
             cboWeapons.SelectedIndexChanged += cboWeapons_SelectedIndexChanged;
 
             cboPotions.DataSource = _player.Potions;
-            cboPotions.DisplayMember = "Name";
-            cboPotions.ValueMember = "Id";
+            cboPotions.DisplayMember = nameof(HealingPotion.Name);
+            cboPotions.ValueMember = nameof(HealingPotion.ID);
 
             _player.PropertyChanged += PlayerOnPropertyChanged;
             _player.OnMessage += DisplayMessage;
@@ -125,12 +120,12 @@ namespace SuperAdventure
 
         private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _player.CurrentWeapon = (Weapon)cboWeapons.SelectedItem;
+            _player.EquipedWeapon = (Weapon)cboWeapons.SelectedItem;
         }
 
         private void PlayerOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
         {
-            if (propertyChangedEventArgs.PropertyName == "Weapons")
+            if (propertyChangedEventArgs.PropertyName == nameof(Player.Weapons))
             {
                 cboWeapons.DataSource = _player.Weapons;
 
@@ -140,7 +135,7 @@ namespace SuperAdventure
                     btnUseWeapon.Visible = false;
                 }
             }
-            else if (propertyChangedEventArgs.PropertyName == "Potions")
+            else if (propertyChangedEventArgs.PropertyName == nameof(Player.Potions))
             {
                 cboPotions.DataSource = _player.Potions;
 
@@ -150,7 +145,7 @@ namespace SuperAdventure
                     btnUsePotion.Visible = false;
                 }
             }
-            else if (propertyChangedEventArgs.PropertyName == "CurrentLocation")
+            else if (propertyChangedEventArgs.PropertyName == nameof(Player.CurrentLocation))
             {
                 btnNorth.Visible = (_player.CurrentLocation.LocationToNorth != null);
                 btnEast.Visible = (_player.CurrentLocation.LocationToEast != null);
@@ -160,7 +155,7 @@ namespace SuperAdventure
                 rtbLocation.Text = $"{_player.CurrentLocation.Name}{Environment.NewLine}";
                 rtbLocation.Text = $"{_player.CurrentLocation.Description}{Environment.NewLine}";
 
-                if (_player.CurrentLocation.MonsterLivingHere == null)
+                if (!_player.CurrentLocation.MonsterIsHere)
                 {
                     cboWeapons.Visible = false;
                     cboPotions.Visible = false;
@@ -175,7 +170,7 @@ namespace SuperAdventure
                     btnUsePotion.Visible = _player.Potions.Any();
                 }
 
-                btnTrade.Visible = (_player.CurrentLocation.VendorWorkingHere != null);
+                btnTrade.Visible = (!_player.CurrentLocation.VendorIsHere);
             }
         }
 

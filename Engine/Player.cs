@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.ComponentModel;
+using System.Linq;
+using System.Xml;
 
 namespace Engine
 {
@@ -19,7 +17,7 @@ namespace Engine
             set
             {
                 _gold = value;
-                OnPropertyChanged("Gold");
+                OnPropertyChanged(nameof(Gold));
             }
         }
 
@@ -30,8 +28,8 @@ namespace Engine
             private set
             {
                 _experiencePoints = value;
-                OnPropertyChanged("ExperiencePoints");
-                OnPropertyChanged("Level");
+                OnPropertyChanged(nameof(ExperiencePoints));
+                OnPropertyChanged(nameof(Level));
             }
         }
 
@@ -43,16 +41,18 @@ namespace Engine
             set
             {
                 _currentLocation = value;
-                OnPropertyChanged("CurrentLocation");
+                OnPropertyChanged(nameof(CurrentLocation));
             }
         }
 
 
 
         public int Level => ((ExperiencePoints / 100) + 1);
-        public Weapon CurrentWeapon { get; set; }
 
 
+        public Weapon EquipedWeapon { get; set; }
+
+        public bool HasWeaponEquiped => EquipedWeapon != null;
 
         public List<Weapon> Weapons => Inventory
             .Where(x => x.Details is Weapon)
@@ -112,7 +112,7 @@ namespace Engine
                 if (playerData.SelectSingleNode("/Player/Stats/CurrentWeapon") != null)
                 {
                     int currentWeaponID = Convert.ToInt32(playerData.SelectSingleNode("/Player/Stats/CurrentWeapon").InnerText);
-                    player.CurrentWeapon = (Weapon)World.ItemByID(currentWeaponID);
+                    player.EquipedWeapon = (Weapon)World.ItemByID(currentWeaponID);
                 }
 
                 foreach (XmlNode node in playerData.SelectNodes("/Player/InventoryItems/InventoryItem"))
@@ -153,15 +153,15 @@ namespace Engine
             return player;
         }
 
-
+        //TODO Add CreatePlayerFromJSON
 
         private void RaiseInventoryChangedEvent(Item item)
         {
             if (item is Weapon)
-                OnPropertyChanged("Weapons");
+                OnPropertyChanged(nameof(Weapons));
 
             if (item is HealingPotion)
-                OnPropertyChanged("Potions");
+                OnPropertyChanged(nameof(Potions));
         }
 
         public void AddExperiencePoints(int experiencePointsToAdd)
@@ -170,16 +170,9 @@ namespace Engine
             MaximumHitPoints = (Level * 10);
         }
 
-        //[Obsolete("Use CreatePlayerFromJSON")]
-
-        //public static Player CreatePlayerFromJSON(string jsonData)
-        //{
-        //    return JsonConvert.DeserializeObject<Player>(jsonData);
-        //}
-
         public bool HasRequiredItemToEnterThisLocation(Location location)
         {
-            if (location.ItemRequiredToEnter == null)
+            if (location.RequiresItem)
                 return true;
 
             return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
@@ -241,8 +234,7 @@ namespace Engine
 
             if (item == null)
             {
-                //Add Exception at later time
-                //throw new NullReferenceException("Item not found in inventory");
+               //TODO Add NullReference Exception
             }
             else
             {
@@ -297,10 +289,10 @@ namespace Engine
             currentLocation.AppendChild(playerData.CreateTextNode(CurrentLocation.ID.ToString()));
             stats.AppendChild(currentLocation);
 
-            if (CurrentWeapon != null)
+            if (HasWeaponEquiped)
             {
                 XmlNode currentWeapon = playerData.CreateElement("CurrentWeapon");
-                currentWeapon.AppendChild(playerData.CreateTextNode(CurrentWeapon.ID.ToString()));
+                currentWeapon.AppendChild(playerData.CreateTextNode(EquipedWeapon.ID.ToString()));
                 stats.AppendChild(currentWeapon);
             }
 
@@ -343,6 +335,8 @@ namespace Engine
             return playerData.InnerXml;
         }
         
+        //TODO Add ToJSON
+
         public void MoveNorth()
         {
             if (CurrentLocation.LocationToNorth != null)
@@ -369,7 +363,7 @@ namespace Engine
 
         public void MoveTo(Location newLocation)
         {
-            if (newLocation.ItemRequiredToEnter != null)
+            if (newLocation.RequiresItem)
             {
                 if (!HasRequiredItemToEnterThisLocation(newLocation))
                 {
@@ -383,7 +377,7 @@ namespace Engine
 
             CurrentHitPoints = MaximumHitPoints;
 
-            if (newLocation.QuestAvailableHere != null)
+            if (newLocation.HasQuest)
             {
                 bool playerAlreadyHasQuest = HasThisQuest(newLocation.QuestAvailableHere);
                 bool playerAlreadyCompletedQuest = CompletedThisQuest(newLocation.QuestAvailableHere);
@@ -434,7 +428,7 @@ namespace Engine
                 }
             }
 
-            if (newLocation.MonsterLivingHere != null)
+            if (newLocation.MonsterIsHere)
             {
                 RaiseMessage($"You see a {newLocation.MonsterLivingHere.Name}");
 

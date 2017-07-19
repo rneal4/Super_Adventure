@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Engine
 {
@@ -16,7 +11,7 @@ namespace Engine
             set
             {
                 _details = value;
-                OnPropertyChanged("Details");
+                OnPropertyChanged(nameof(Details));
             }
         }
         
@@ -27,8 +22,8 @@ namespace Engine
             set
             {
                 _quantity = value;
-                OnPropertyChanged("Quantity");
-                OnPropertyChanged("Description");
+                OnPropertyChanged(nameof(Quantity));
+                OnPropertyChanged(nameof(Description));
             }
         }
 

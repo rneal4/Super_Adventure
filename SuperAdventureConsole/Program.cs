@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Engine;
 
 namespace SuperAdventureConsole
@@ -51,7 +48,7 @@ namespace SuperAdventureConsole
 
         private static void Player_OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "CurrentLocation")
+            if (e.PropertyName == nameof(Player.CurrentLocation))
             {
                 DisplayCurrentLocation();
 
@@ -155,18 +152,13 @@ namespace SuperAdventureConsole
                 }
                 else
                 {
-                    if (_player.CurrentWeapon == null)
-                        _player.CurrentWeapon = _player.Weapons.FirstOrDefault();
+                    if (_player.EquipedWeapon == null)
+                        _player.EquipedWeapon = _player.Weapons.FirstOrDefault();
 
-                    if (_player.CurrentWeapon == null)
-                    {
-                        //TODO: Add ability to attack with fist
-                        Console.WriteLine("Yuo do not have any weapons");
-                    }
+                    if (_player.HasWeaponEquiped)
+                        _player.UseWeapon(_player.EquipedWeapon);
                     else
-                    {
-                        _player.UseWeapon(_player.CurrentWeapon);
-                    }
+                        Console.WriteLine("Yuo do not have any weapons equiped");
                 }
             }
             else if (input.StartsWith("equip "))
@@ -188,9 +180,9 @@ namespace SuperAdventureConsole
                     }
                     else
                     {
-                        _player.CurrentWeapon = weaponToEquip;
+                        _player.EquipedWeapon = weaponToEquip;
 
-                        Console.WriteLine($"You equip your {_player.CurrentWeapon.Name}");
+                        Console.WriteLine($"You equip your {_player.EquipedWeapon.Name}");
                     }
                 }
             }
@@ -252,7 +244,7 @@ namespace SuperAdventureConsole
             }
             else if (input.StartsWith("buy "))
             {
-                if (_player.CurrentLocation.VendorWorkingHere == null)
+                if (!_player.CurrentLocation.VendorIsHere)
                 {
                     Console.WriteLine("There is no vendor at this location");
                 }
@@ -292,7 +284,7 @@ namespace SuperAdventureConsole
             }
             else if (input.StartsWith("sell "))
             {
-                if (_player.CurrentLocation.VendorWorkingHere == null)
+                if (!_player.CurrentLocation.VendorIsHere)
                 {
                     Console.WriteLine("There is no vendor at this location");
                 }
@@ -361,5 +353,4 @@ namespace SuperAdventureConsole
             PlayerDataMapper.SaveToDatabase(_player);
         }
     }
-    
 }

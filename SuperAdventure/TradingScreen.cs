@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Engine;
 
@@ -29,7 +22,7 @@ namespace SuperAdventure
 
             dgvMyItems.Columns.Add(new DataGridViewTextBoxColumn
             {
-                DataPropertyName = "ItemID",
+                DataPropertyName = nameof(InventoryItem.ItemID),
                 Visible = false
             });
 
@@ -37,7 +30,7 @@ namespace SuperAdventure
             {
                 HeaderText = "Name",
                 Width = 100,
-                DataPropertyName = "Description"
+                DataPropertyName = nameof(InventoryItem.Description)
             });
 
             dgvMyItems.Columns.Add(new DataGridViewTextBoxColumn
@@ -45,7 +38,7 @@ namespace SuperAdventure
                 HeaderText = "Qty",
                 Width = 30,
                 DefaultCellStyle = rightAlignedCellStyle,
-                DataPropertyName = "Quantity"
+                DataPropertyName = nameof(InventoryItem.Quantity)
             });
 
             dgvMyItems.Columns.Add(new DataGridViewTextBoxColumn
@@ -53,7 +46,7 @@ namespace SuperAdventure
                 HeaderText = "Price",
                 Width = 35,
                 DefaultCellStyle = rightAlignedCellStyle,
-                DataPropertyName = "Price"
+                DataPropertyName = nameof(InventoryItem.Price)
             });
 
             dgvMyItems.Columns.Add(new DataGridViewButtonColumn
@@ -61,7 +54,7 @@ namespace SuperAdventure
                 Text = "Sell 1",
                 UseColumnTextForButtonValue = true,
                 Width = 50,
-                DataPropertyName = "ItemID"
+                DataPropertyName = nameof(InventoryItem.ItemID)
             });
 
             dgvMyItems.DataSource = _currentPlayer.Inventory;
@@ -73,7 +66,7 @@ namespace SuperAdventure
 
             dgvVendorItems.Columns.Add(new DataGridViewTextBoxColumn
             {
-                DataPropertyName = "ItemID",
+                DataPropertyName = nameof(InventoryItem.ItemID),
                 Visible = false
             });
 
@@ -81,7 +74,7 @@ namespace SuperAdventure
             {
                 HeaderText = "Name",
                 Width = 100,
-                DataPropertyName = "Description"
+                DataPropertyName = nameof(InventoryItem.Description)
             });
 
             dgvVendorItems.Columns.Add(new DataGridViewTextBoxColumn
@@ -89,7 +82,7 @@ namespace SuperAdventure
                 HeaderText = "Price",
                 Width = 35,
                 DefaultCellStyle = rightAlignedCellStyle,
-                DataPropertyName = "Price"
+                DataPropertyName = nameof(InventoryItem.Price)
             });
 
             dgvVendorItems.Columns.Add(new DataGridViewButtonColumn
@@ -97,7 +90,7 @@ namespace SuperAdventure
                 Text = "Buy 1",
                 UseColumnTextForButtonValue = true,
                 Width = 50,
-                DataPropertyName = "ItemID"
+                DataPropertyName = nameof(InventoryItem.ItemID)
             });
 
             dgvVendorItems.DataSource = _currentPlayer.CurrentLocation.VendorWorkingHere.Inventory;
@@ -113,9 +106,9 @@ namespace SuperAdventure
 
                 Item itemBeingSold = World.ItemByID(Convert.ToInt32(itemID));
 
-                if (itemBeingSold.Price == World.UNSELLABLE_ITEM_PRICE)
+                if (!itemBeingSold.IsSellable)
                 {
-                    MessageBox.Show($"yOU CANNOT SELL THE {itemBeingSold.Name}");
+                    MessageBox.Show($"You cannot sell the {itemBeingSold.Name}");
                 }
                 else
                 {

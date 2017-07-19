@@ -1,11 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Engine
+﻿namespace Engine
 {
     public class Location
     {
@@ -15,20 +8,16 @@ namespace Engine
         public Item ItemRequiredToEnter { get; set; }
         public Quest QuestAvailableHere { get; set; }
         public Monster MonsterLivingHere { get; set; }
-
-        //[JsonProperty(IsReference = true)]
         public Location LocationToNorth { get; set; }
-
-        //[JsonProperty(IsReference = true)]
         public Location LocationToEast { get; set; }
-
-        //[JsonProperty(IsReference = true)]
         public Location LocationToSouth { get; set; }
-
-        //[JsonProperty(IsReference = true)]
         public Location LocationToWest { get; set; }
-
         public Vendor VendorWorkingHere { get; set; }
+
+        public bool RequiresItem => ItemRequiredToEnter != null;
+        public bool HasQuest => QuestAvailableHere != null;
+        public bool MonsterIsHere => MonsterLivingHere != null;
+        public bool VendorIsHere => VendorWorkingHere != null;
 
         public Location(int id, string name, string description,
             Item itemRequiredToEnter = null,
@@ -42,6 +31,5 @@ namespace Engine
             QuestAvailableHere = questAvailableHere;
             MonsterLivingHere = monsterLivingHere;
         }
-
     }
 }
