@@ -63,7 +63,7 @@ namespace Engine
         public BindingList<PlayerQuest> Quests { get; set; }
         
         
-        private Player(int currentHitPoints, int maximumHitPoints, int gold,
+        public Player(int currentHitPoints, int maximumHitPoints, int gold,
             int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
             Gold = gold;
@@ -134,16 +134,6 @@ namespace Engine
             }
         }
 
-        public static Player CreatePlayerFromDatabase(int currentHitPoints, int maximumHutPoints, int gold,
-            int experiencePoints, int currentLocationID)
-        {
-            Player player = new Player(currentHitPoints, maximumHutPoints, gold, experiencePoints);
-
-            player.MoveTo(World.LocationByID(currentLocationID));
-
-            return player;
-        }
-
         //TODO Add CreatePlayerFromJSON
 
 
@@ -152,7 +142,7 @@ namespace Engine
 
         public bool HasRequiredItemToEnterThisLocation(Location location)
         {
-            if (location.RequiresItem)
+            if (!location.RequiresItem)
                 return true;
 
             return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);

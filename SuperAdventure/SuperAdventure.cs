@@ -170,7 +170,7 @@ namespace SuperAdventure
                     btnUsePotion.Visible = _player.Potions.Any();
                 }
 
-                btnTrade.Visible = (!_player.CurrentLocation.VendorIsHere);
+                btnTrade.Visible = _player.CurrentLocation.VendorIsHere;
             }
         }
 

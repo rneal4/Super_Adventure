@@ -18,6 +18,7 @@ namespace Engine
                     connection.Open();
 
                     Player player;
+                    int currentLocationID = 1;
 
                     using (SqlCommand savedGameCommaned = connection.CreateCommand())
                     {
@@ -36,9 +37,10 @@ namespace Engine
                             int maximumHitPoints = (int)reader["MaximumHitPoints"];
                             int gold = (int)reader["Gold"];
                             int experiencePoints = (int)reader["ExperiencePoints"];
-                            int currentLocationID = (int)reader["CurrentLocationID"];
+                            currentLocationID = (int)reader["CurrentLocationID"];
 
-                            player = Player.CreatePlayerFromDatabase(currentHitPoints, maximumHitPoints, gold, experiencePoints, currentLocationID);
+                            //TODO Because quests and inventory are loaded after the player. Move
+                            player = new Player(currentHitPoints, maximumHitPoints, gold, experiencePoints);
                         }
                     }
 
@@ -84,6 +86,8 @@ namespace Engine
                             }
                         }
                     }
+
+                    player.MoveTo(World.LocationByID(currentLocationID));
 
                     return player;
                 }
