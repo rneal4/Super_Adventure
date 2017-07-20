@@ -8,9 +8,9 @@ namespace SuperAdventureConsole
 {
     public class Program
     {
-        private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
-
         private static Player _player;
+        private const string PLAYER_DATA_FILE_NAME_XML = "PlayerData.xml";
+        private const string PLAYER_DATA_FILE_NAME_JSON = "PlayerData.json";
 
         static void Main(string[] args)
         {
@@ -332,22 +332,21 @@ namespace SuperAdventureConsole
 
         private static void LoadGameData()
         {
-            _player = PlayerDataMapper.CreateFromDatabase();
-
-            if (_player == null)
-            {
-                if (File.Exists(PLAYER_DATA_FILE_NAME))
-                    _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
-                else
-                    _player = Player.CreateDefaultPlayer();
-            }
+            if (File.Exists(PLAYER_DATA_FILE_NAME_XML))
+                _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME_XML));
+            else if (File.Exists(PLAYER_DATA_FILE_NAME_XML))
+                _player = Player.CreatePlryerFromJSONString(File.ReadAllText(PLAYER_DATA_FILE_NAME_JSON));
+            else
+                _player = Player.CreateDefaultPlayer();
         }
 
         private static void SaveGameData()
         {
-            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXMLString());
-
             PlayerDataMapper.SaveToDatabase(_player);
+
+            File.WriteAllText(PLAYER_DATA_FILE_NAME_XML, _player.ToXMLString());
+
+            File.WriteAllText(PLAYER_DATA_FILE_NAME_JSON, _player.ToJSONString());
         }
     }
 }

@@ -10,7 +10,8 @@ namespace SuperAdventure
     public partial class SuperAdventure : Form
     {
         private Player _player;
-        private const string PLAYER_DATA_FILE_NAME = "PlayerData.xml";
+        private const string PLAYER_DATA_FILE_NAME_XML = "PlayerData.xml";
+        private const string PLAYER_DATA_FILE_NAME_JSON = "PlayerData.json";
         public SuperAdventure()
         {
             InitializeComponent();
@@ -19,8 +20,10 @@ namespace SuperAdventure
 
             if (_player == null)
             {
-                if (File.Exists(PLAYER_DATA_FILE_NAME))
-                    _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME));
+                if (File.Exists(PLAYER_DATA_FILE_NAME_XML))
+                    _player = Player.CreatePlayerFromXMLString(File.ReadAllText(PLAYER_DATA_FILE_NAME_XML));
+                else if (File.Exists(PLAYER_DATA_FILE_NAME_XML))
+                    _player = Player.CreatePlryerFromJSONString(File.ReadAllText(PLAYER_DATA_FILE_NAME_JSON));
                 else
                     _player = Player.CreateDefaultPlayer();
             }
@@ -113,9 +116,11 @@ namespace SuperAdventure
 
         private void SuperAdventure_FormClosing(object sender, FormClosingEventArgs e)
         {
-            File.WriteAllText(PLAYER_DATA_FILE_NAME, _player.ToXMLString());
-
             PlayerDataMapper.SaveToDatabase(_player);
+
+            File.WriteAllText(PLAYER_DATA_FILE_NAME_XML, _player.ToXMLString());
+
+            File.WriteAllText(PLAYER_DATA_FILE_NAME_JSON, _player.ToJSONString());
         }
 
         private void cboWeapons_SelectedIndexChanged(object sender, EventArgs e)

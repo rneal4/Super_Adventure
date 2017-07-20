@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Xml;
+using Newtonsoft.Json;
 
 namespace Engine
 {
@@ -135,7 +136,14 @@ namespace Engine
         }
 
         //TODO Add CreatePlayerFromJSON
+        public static Player CreatePlryerFromJSONString(string json)
+        {
+            Player player = JsonConvert.DeserializeObject<Player>(json);
 
+            player.MoveTo(World.LocationByID(player.CurrentLocation.ID));
+
+            return player;
+        }
 
 
         public bool HasWeaponEquiped => EquipedWeapon != null;
@@ -355,7 +363,10 @@ namespace Engine
             return playerData.InnerXml;
         }
 
-        //TODO Add ToJSON
+        public string ToJSONString()
+        {
+            return JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore } );
+        }
 
 
         public void GiveReward(Quest quest)
