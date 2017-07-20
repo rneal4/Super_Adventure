@@ -30,11 +30,7 @@ namespace Engine
         {
             InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToRemove.ID);
 
-            if (item == null)
-            {
-                //TODO Add Null Reference Exception
-            }
-            else
+            if (item != null)
             {
                 item.Quantity -= quantity;
 

@@ -157,13 +157,7 @@ namespace Engine
 
         public bool HasCompletedQuest(Quest quest)
         {
-            foreach (PlayerQuest pq in Quests)
-            {
-                if (pq.Details.ID == quest.ID)
-                    return pq.IsCompleted;
-            }
-
-            return false;
+            return Quests.SingleOrDefault(pq => pq.Details.ID == quest.ID)?.IsCompleted == true;
         }
 
         public void GiveQuest(Quest quest)
@@ -188,7 +182,7 @@ namespace Engine
 
         public void CompleteQuest(Quest quest)
         {
-            if (!HasQuest(quest) || !HasAllQuestCompletionItems(quest))
+            if (!HasQuest(quest) || !HasAllQuestCompletionItems(quest) || HasCompletedQuest(quest))
                 return;
 
             PlayerQuest playerQuest = Quests.SingleOrDefault(pq => pq.Details.ID == quest.ID);
@@ -244,11 +238,7 @@ namespace Engine
         {
             InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToRemove.ID);
 
-            if (item == null)
-            {
-                //TODO Add NullReference Exception
-            }
-            else
+            if (item != null)
             {
                 item.Quantity -= quantuty;
 
@@ -468,7 +458,7 @@ namespace Engine
             {
                 if (!HasQuest(location.QuestAvailableHere))
                     GiveQuest(location.QuestAvailableHere);
-                else
+                else if (!HasCompletedQuest(location.QuestAvailableHere))
                     CompleteQuest(location.QuestAvailableHere);
             }
 

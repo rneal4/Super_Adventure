@@ -60,9 +60,6 @@ namespace SuperAdventureConsole
         private static void Player_OnMessage(object sender, MessageEventArgs e)
         {
             Console.WriteLine(e.Message);
-
-            if (e.AddExtraNewLine)
-                Console.WriteLine("");
         }
 
         private static void ParseInput(string input)

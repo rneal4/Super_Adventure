@@ -38,8 +38,7 @@ namespace Engine
                             int gold = (int)reader["Gold"];
                             int experiencePoints = (int)reader["ExperiencePoints"];
                             currentLocationID = (int)reader["CurrentLocationID"];
-
-                            //TODO Because quests and inventory are loaded after the player. Move
+                            
                             player = new Player(currentHitPoints, maximumHitPoints, gold, experiencePoints);
                         }
                     }
