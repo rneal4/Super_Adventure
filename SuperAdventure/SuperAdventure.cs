@@ -178,9 +178,6 @@ namespace SuperAdventure
         {
             rtbMessages.Text += $"{messageEventArgs.Message}{Environment.NewLine}";
 
-            if (messageEventArgs.AddExtraNewLine)
-                rtbMessages.Text += Environment.NewLine;
-
             rtbMessages.SelectionStart = rtbMessages.Text.Length;
             rtbMessages.ScrollToCaret();
         }

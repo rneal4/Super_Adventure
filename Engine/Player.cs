@@ -9,7 +9,7 @@ namespace Engine
     public class Player : LivingCreature
     {
         private Monster _currentMonster;
-        
+
         private int _gold;
         public int Gold
         {
@@ -43,11 +43,11 @@ namespace Engine
                 OnPropertyChanged(nameof(CurrentLocation));
             }
         }
-        
+
         public int Level => ((ExperiencePoints / 100) + 1);
 
         public Weapon EquipedWeapon { get; set; }
-    
+
         public List<Weapon> Weapons => Inventory
             .Where(x => x.Details is Weapon)
             .Select(x => x.Details as Weapon)
@@ -57,12 +57,12 @@ namespace Engine
             .Where(x => x.Details is HealingPotion)
             .Select(x => x.Details as HealingPotion)
             .ToList();
-        
+
 
         public BindingList<InventoryItem> Inventory { get; set; }
         public BindingList<PlayerQuest> Quests { get; set; }
-        
-        
+
+
         public Player(int currentHitPoints, int maximumHitPoints, int gold,
             int experiencePoints) : base(currentHitPoints, maximumHitPoints)
         {
@@ -137,10 +137,11 @@ namespace Engine
         //TODO Add CreatePlayerFromJSON
 
 
+
         public bool HasWeaponEquiped => EquipedWeapon != null;
 
 
-        public bool HasRequiredItemToEnterThisLocation(Location location)
+        public bool HasRequiredItemToEnterLocation(Location location)
         {
             if (!location.RequiresItem)
                 return true;
@@ -149,12 +150,12 @@ namespace Engine
         }
 
 
-        public bool HasThisQuest(Quest quest)
+        public bool HasQuest(Quest quest)
         {
             return Quests.Any(pq => pq.Details.ID == quest.ID);
         }
 
-        public bool HasCompletedThisQuest(Quest quest)
+        public bool HasCompletedQuest(Quest quest)
         {
             foreach (PlayerQuest pq in Quests)
             {
@@ -167,7 +168,7 @@ namespace Engine
 
         public void GiveQuest(Quest quest)
         {
-            if (HasThisQuest(quest))
+            if (HasQuest(quest))
                 return;
 
             RaiseMessage($"You receieve the {quest.Name} quest.");
@@ -187,7 +188,7 @@ namespace Engine
 
         public void CompleteQuest(Quest quest)
         {
-            if (!HasThisQuest(quest) || !HasAllQuestCompletionItems(quest))
+            if (!HasQuest(quest) || !HasAllQuestCompletionItems(quest))
                 return;
 
             PlayerQuest playerQuest = Quests.SingleOrDefault(pq => pq.Details.ID == quest.ID);
@@ -197,20 +198,11 @@ namespace Engine
 
             RemoveQuestCompletionItems(quest);
 
-            RaiseMessage($"You receive: ");
-            RaiseMessage($"{quest.RewardExperiencePoints} experience points");
-            RaiseMessage($"{quest.RewardGold} gold");
-            RaiseMessage($"{quest.RewardItem.Name}");
-
-            AddExperiencePoints(quest.RewardExperiencePoints);
-
-            Gold += quest.RewardGold;
-
-            AddItemToInventory(quest.RewardItem);
+            GiveReward(quest);
 
             playerQuest.IsCompleted = true;
         }
-        
+
         public bool HasAllQuestCompletionItems(Quest quest)
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
@@ -220,7 +212,7 @@ namespace Engine
             }
 
             return true;
-        }    
+        }
 
         private void RemoveQuestCompletionItems(Quest quest)
         {
@@ -233,7 +225,7 @@ namespace Engine
             }
         }
 
-    
+
 
 
         public void AddItemToInventory(Item itemToAdd, int quantity = 1)
@@ -254,7 +246,7 @@ namespace Engine
 
             if (item == null)
             {
-               //TODO Add NullReference Exception
+                //TODO Add NullReference Exception
             }
             else
             {
@@ -362,7 +354,7 @@ namespace Engine
                 XmlAttribute idAttribute = playerData.CreateAttribute("ID");
                 idAttribute.Value = quest.Details.ID.ToString();
                 playerQuest.Attributes.Append(idAttribute);
-                
+
                 XmlAttribute isCompletedAttribute = playerData.CreateAttribute("IsCompleted");
                 isCompletedAttribute.Value = quest.IsCompleted.ToString();
                 playerQuest.Attributes.Append(isCompletedAttribute);
@@ -372,11 +364,62 @@ namespace Engine
 
             return playerData.InnerXml;
         }
-        
+
         //TODO Add ToJSON
 
 
-        
+        public void GiveReward(Quest quest)
+        {
+            AddExperiencePoints(quest.RewardExperiencePoints);
+            RaiseMessage($"You receive {quest.RewardExperiencePoints} experience points");
+
+            Gold += quest.RewardGold;
+            RaiseMessage($"You receieve {quest.RewardGold} gold");
+
+            AddItemToInventory(quest.RewardItem);
+            RaiseMessage($"You receieve {quest.RewardItem.Name}");
+
+            RaiseMessage("");
+        }
+
+        public void GiveReward(Monster monster)
+        {
+            AddExperiencePoints(monster.RewardExperiencePoints);
+            RaiseMessage($"You receive {monster.RewardExperiencePoints} experience points");
+
+            Gold += monster.RewardGold;
+            RaiseMessage($"You receieve {monster.RewardGold} gold");
+
+            List<InventoryItem> lootedItems = new List<InventoryItem>();
+
+            foreach (LootItem lootItem in monster.LootTable)
+            {
+                if (RandomNumberGenerator.NumberBetween(1, 100) <= lootItem.DropPercentage)
+                    lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+            }
+
+            if (lootedItems.Count == 0)
+            {
+                foreach (LootItem lootItem in monster.LootTable)
+                {
+                    if (lootItem.IsDefaultItem)
+                        lootedItems.Add(new InventoryItem(lootItem.Details, 1));
+                }
+            }
+
+            foreach (InventoryItem inventoryItem in lootedItems)
+            {
+                AddItemToInventory(inventoryItem.Details);
+
+                if (inventoryItem.Quantity == 1)
+                    RaiseMessage($"You loot {inventoryItem.Quantity} {inventoryItem.Details.Name}");
+                else
+                    RaiseMessage($"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural}");
+            }
+
+            RaiseMessage("");
+        }
+
 
         public void MoveNorth()
         {
@@ -409,7 +452,7 @@ namespace Engine
 
         public void MoveTo(Location location)
         {
-            if (!HasRequiredItemToEnterThisLocation(location))
+            if (!HasRequiredItemToEnterLocation(location))
             {
                 RaiseMessage($"You must have a {location.ItemRequiredToEnter.Name} " +
                      $"to enter this location.");
@@ -423,7 +466,7 @@ namespace Engine
 
             if (location.HasQuest)
             {
-                if (!HasThisQuest(location.QuestAvailableHere))
+                if (!HasQuest(location.QuestAvailableHere))
                     GiveQuest(location.QuestAvailableHere);
                 else
                     CompleteQuest(location.QuestAvailableHere);
@@ -431,6 +474,10 @@ namespace Engine
 
             SetMonsterFromLocation(location);
         }
+
+
+
+
 
         public void UseWeapon(Weapon weapon)
         {
@@ -440,62 +487,18 @@ namespace Engine
 
             RaiseMessage($"You hit the {_currentMonster.Name} for {damageToMonster} points.");
 
-            if (_currentMonster.CurrentHitPoints <= 0)
+            if (_currentMonster.IsDead)
             {
                 RaiseMessage("");
                 RaiseMessage($"You defeated the {_currentMonster.Name}");
 
-                AddExperiencePoints(_currentMonster.RewardExperiencePoints);
-                RaiseMessage($"You receive {_currentMonster.RewardExperiencePoints} experience points");
-
-                Gold += _currentMonster.RewardGold;
-                RaiseMessage($"You receieve {_currentMonster.RewardGold} gold");
-
-                List<InventoryItem> lootedItems = new List<InventoryItem>();
-
-                foreach (LootItem lootItem in _currentMonster.LootTable)
-                {
-                    if (RandomNumberGenerator.NumberBetween(1, 100) <= lootItem.DropPercentage)
-                        lootedItems.Add(new InventoryItem(lootItem.Details, 1));
-                }
-
-                if (lootedItems.Count == 0)
-                {
-                    foreach (LootItem lootItem in _currentMonster.LootTable)
-                    {
-                        if (lootItem.IsDefaultItem)
-                            lootedItems.Add(new InventoryItem(lootItem.Details, 1));
-                    }
-                }
-
-                foreach (InventoryItem inventoryItem in lootedItems)
-                {
-                    AddItemToInventory(inventoryItem.Details);
-
-                    if (inventoryItem.Quantity == 1)
-                        RaiseMessage($"You loot {inventoryItem.Quantity} {inventoryItem.Details.Name}");
-                    else
-                        RaiseMessage($"You loot {inventoryItem.Quantity} {inventoryItem.Details.NamePlural}");
-                }
-
-                RaiseMessage("");
+                GiveReward(_currentMonster);
 
                 MoveTo(CurrentLocation);
             }
             else
             {
-                int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);
-
-                RaiseMessage($"The {_currentMonster.Name} did {damageToPlayer} points of damage.");
-
-                CurrentHitPoints -= damageToPlayer;
-
-                if (CurrentHitPoints <= 0)
-                {
-                    RaiseMessage($"The {_currentMonster.Name} killed you.");
-
-                    MoveHome();
-                }
+                AttackedByMonster(_currentMonster);
             }
         }
 
@@ -510,28 +513,32 @@ namespace Engine
 
             RaiseMessage($"You drink a {potion.Name}");
 
-            int damageToPlayer = RandomNumberGenerator.NumberBetween(0, _currentMonster.MaximumDamage);
+            AttackedByMonster(_currentMonster);
+        }
 
-            RaiseMessage($"The {_currentMonster.Name} did {damageToPlayer} points of damage.");
+
+        public void AttackedByMonster(Monster monster)
+        {
+            int damageToPlayer = RandomNumberGenerator.NumberBetween(0, monster.MaximumDamage);
+
+            RaiseMessage($"The {monster.Name} did {damageToPlayer} points of damage.");
 
             CurrentHitPoints -= damageToPlayer;
 
-            if (CurrentHitPoints <= 0)
+            if (IsDead)
             {
-                RaiseMessage($"The {_currentMonster.Name} killed you.");
+                RaiseMessage($"The {monster.Name} killed you.");
 
                 MoveHome();
             }
         }
 
 
-
-
         public event EventHandler<MessageEventArgs> OnMessage;
 
-        private void RaiseMessage(string message, bool addExtraLine = false)
+        private void RaiseMessage(string message)
         {
-            OnMessage?.Invoke(this, new MessageEventArgs(message, addExtraLine));
+            OnMessage?.Invoke(this, new MessageEventArgs(message));
         }
 
         private void RaiseInventoryChangedEvent(Item item)
