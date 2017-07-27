@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Engine
 {
@@ -134,13 +135,14 @@ namespace Engine
                 return Player.CreateDefaultPlayer();
             }
         }
-
-        //TODO Add CreatePlayerFromJSON
+        
         public static Player CreatePlryerFromJSONString(string json)
         {
-            Player player = JsonConvert.DeserializeObject<Player>(json);
+            Player player = JsonConvert.DeserializeObject<Player>(json, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, TypeNameHandling = TypeNameHandling.All });
 
-            player.MoveTo(World.LocationByID(player.CurrentLocation.ID));
+            int currentLocationID = JToken.Parse(json).SelectTokens("..CurrentLocation").Select(x => x.ToObject<Location>()).Select(x => x.ID).First();
+
+            player.MoveTo(World.LocationByID(currentLocationID));
 
             return player;
         }
@@ -367,7 +369,7 @@ namespace Engine
 
         public string ToJSONString()
         {
-            return JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore } );
+            return JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, TypeNameHandling = TypeNameHandling.All });
         }
 
 
