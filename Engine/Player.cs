@@ -263,10 +263,12 @@ namespace Engine
 
         public void AddExperiencePoints(int experiencePointsToAdd)
         {
+            if (experiencePointsToAdd < 0)
+                throw new ArgumentException("Must be Positive", "experiencePointsToAdd");
+
             ExperiencePoints += experiencePointsToAdd;
             MaximumHitPoints = (Level * 10);
         }
-
 
         public void SetMonsterFromLocation(Location location)
         {

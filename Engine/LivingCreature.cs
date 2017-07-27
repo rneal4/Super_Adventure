@@ -15,7 +15,7 @@ namespace Engine
             }
         }
 
-        public int MaximumHitPoints { get; set; }
+        public int MaximumHitPoints { get; protected set; }
 
         public bool IsDead => CurrentHitPoints <= 0;
 
