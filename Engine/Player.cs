@@ -38,7 +38,7 @@ namespace Engine
         public Location CurrentLocation
         {
             get { return _currentLocation; }
-            set
+            private set
             {
                 _currentLocation = value;
                 OnPropertyChanged(nameof(CurrentLocation));

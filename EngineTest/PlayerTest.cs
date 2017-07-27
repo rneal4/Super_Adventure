@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Engine;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace EngineTest
 {
@@ -70,6 +71,22 @@ namespace EngineTest
 
             Assert.AreEqual(3, player.Level);
             Assert.AreEqual(30, player.MaximumHitPoints);
+        }
+
+        [TestMethod]
+        public void Location_EventRaised_LocationChanged()
+        {
+            List<string> receivedEvents = new List<string>();
+            Player player = new Player(10, 20, 50, 0);
+
+            player.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+            {
+                receivedEvents.Add(e.PropertyName);
+            };
+
+            player.MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+            Assert.IsTrue(receivedEvents.Contains(nameof(player.CurrentLocation)));
+            Assert.AreEqual(World.LocationByID(World.LOCATION_ID_HOME), player.CurrentLocation);
         }
     }
 }
