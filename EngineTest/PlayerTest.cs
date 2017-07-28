@@ -158,6 +158,18 @@ namespace EngineTest
             File.Delete("TestXML.json");
         }
 
+        [TestMethod]
+        public void CompleteQuest_MarkedCompleted_ItemsRemoved_RewardGiven()
+        {
+            Player player = Player.CreateDefaultPlayer();
+            player.GiveQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
+            player.AddItemToInventory(World.ItemByID(World.ITEM_ID_RAT_TAIL), 5);
 
+            player.CompleteQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
+
+            Assert.IsTrue(player.Quests.SingleOrDefault(x => x.Details.ID == World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).IsCompleted);
+            Assert.AreEqual(player.Inventory.SingleOrDefault(x => x.Details.ID == World.ITEM_ID_RAT_TAIL).Quantity, 2);
+            Assert.IsTrue(player.Inventory.Any(x => x.Details.ID == World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).RewardItem.ID));
+        }
     }
 }

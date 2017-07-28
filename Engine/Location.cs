@@ -18,6 +18,14 @@
         public bool HasQuest => QuestAvailableHere != null;
         public bool MonsterIsHere => MonsterLivingHere != null;
         public bool VendorIsHere => VendorWorkingHere != null;
+        
+        public enum Direction
+        {
+            North,
+            East,
+            South,
+            West
+        }
 
         public Location(int id, string name, string description,
             Item itemRequiredToEnter = null,

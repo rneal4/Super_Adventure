@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static Engine.Location;
 
 namespace Engine
 {
@@ -425,34 +426,40 @@ namespace Engine
             RaiseMessage("");
         }
 
-
-        public void MoveNorth()
-        {
-            if (CurrentLocation.LocationToNorth != null)
-                MoveTo(CurrentLocation.LocationToNorth);
-        }
-
-        public void MoveEast()
-        {
-            if (CurrentLocation.LocationToEast != null)
-                MoveTo(CurrentLocation.LocationToEast);
-        }
-
-        public void MoveSouth()
-        {
-            if (CurrentLocation.LocationToSouth != null)
-                MoveTo(CurrentLocation.LocationToSouth);
-        }
-
-        public void MoveWest()
-        {
-            if (CurrentLocation.LocationToWest != null)
-                MoveTo(CurrentLocation.LocationToWest);
-        }
-
         private void MoveHome()
         {
             MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+        }
+
+        public void MoveTo(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.North:
+                    if (CurrentLocation.LocationToNorth != null)
+                         MoveTo(CurrentLocation.LocationToNorth);
+                    else
+                        RaiseMessage($"There is nothing {Direction.North}");
+                    break;
+                case Direction.East:
+                    if (CurrentLocation.LocationToEast != null)
+                        MoveTo(CurrentLocation.LocationToEast);
+                    else
+                        RaiseMessage($"There is nothing {Direction.East}");
+                    break;
+                case Direction.South:
+                    if (CurrentLocation.LocationToSouth != null)
+                        MoveTo(CurrentLocation.LocationToSouth);
+                    else
+                        RaiseMessage($"There is nothing {Direction.South}");
+                    break;
+                case Direction.West:
+                    if (CurrentLocation.LocationToWest != null)
+                        MoveTo(CurrentLocation.LocationToWest);
+                    else
+                        RaiseMessage($"There is nothing {Direction.West}");
+                    break;
+            }
         }
 
         public void MoveTo(Location location)
@@ -479,10 +486,6 @@ namespace Engine
 
             SetMonsterFromLocation(location);
         }
-
-
-        //TODO Something
-
 
         public void UseWeapon(Weapon weapon)
         {

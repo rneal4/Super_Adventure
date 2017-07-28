@@ -1,4 +1,8 @@
-﻿namespace SuperAdventure
+﻿using static Engine.Location;
+using static Engine.Player;
+
+
+namespace SuperAdventure
 {
     partial class SuperAdventure
     {
@@ -175,7 +179,8 @@
             this.btnNorth.TabIndex = 13;
             this.btnNorth.Text = "North";
             this.btnNorth.UseVisualStyleBackColor = true;
-            this.btnNorth.Click += new System.EventHandler(this.btnNorth_Click);
+            this.btnNorth.Click += new System.EventHandler(this.Move_Click);
+            this.btnNorth.Tag = Direction.North;
             // 
             // btnEast
             // 
@@ -185,7 +190,8 @@
             this.btnEast.TabIndex = 14;
             this.btnEast.Text = "East";
             this.btnEast.UseVisualStyleBackColor = true;
-            this.btnEast.Click += new System.EventHandler(this.btnEast_Click);
+            this.btnEast.Click += new System.EventHandler(this.Move_Click);
+            this.btnEast.Tag = Direction.East;
             // 
             // btnSouth
             // 
@@ -195,7 +201,8 @@
             this.btnSouth.TabIndex = 15;
             this.btnSouth.Text = "South";
             this.btnSouth.UseVisualStyleBackColor = true;
-            this.btnSouth.Click += new System.EventHandler(this.btnSouth_Click);
+            this.btnSouth.Click += new System.EventHandler(this.Move_Click);
+            this.btnSouth.Tag = Direction.South;
             // 
             // btnWest
             // 
@@ -206,10 +213,11 @@
             this.btnWest.TabIndex = 16;
             this.btnWest.Text = "West";
             this.btnWest.UseVisualStyleBackColor = true;
-            this.btnWest.Click += new System.EventHandler(this.btnWest_Click);
-            //
+            this.btnWest.Click += new System.EventHandler(this.Move_Click);
+            this.btnWest.Tag = Direction.West;
+            // 
             // btnTrade
-            //
+            // 
             this.btnTrade.Location = new System.Drawing.Point(493, 620);
             this.btnTrade.Name = "btnTrade";
             this.btnTrade.Size = new System.Drawing.Size(75, 23);
