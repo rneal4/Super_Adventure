@@ -5,12 +5,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace EngineTest
 {
     [TestClass]
     public class PlayerTest
     {
+        static JsonSerializerSettings JsonSetting = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, TypeNameHandling = TypeNameHandling.All };
+
         [TestMethod]
         public void Gold_EventsRaised_GoldChanged()
         {
@@ -122,9 +125,39 @@ namespace EngineTest
             Assert.AreEqual(playerBefore.MaximumHitPoints, playerAfter.MaximumHitPoints);
             Assert.AreEqual(playerBefore.Gold, playerAfter.Gold);
             Assert.AreEqual(playerBefore.CurrentLocation, playerAfter.CurrentLocation);
-            //CollectionAssert.AreEquivalent(playerBefore.Inventory, playerAfter.Inventory);
-            //CollectionAssert.AreEquivalent(playerBefore.Quests, playerAfter.Quests);
-            //Assert.AreEqual(playerBefore.EquipedWeapon, playerAfter.EquipedWeapon);
+            Assert.AreEqual(JsonConvert.SerializeObject(playerBefore.Inventory, JsonSetting), JsonConvert.SerializeObject(playerAfter.Inventory, JsonSetting));
+            Assert.AreEqual(JsonConvert.SerializeObject(playerBefore.Quests, JsonSetting), JsonConvert.SerializeObject(playerAfter.Quests, JsonSetting));
+            Assert.AreEqual(JsonConvert.SerializeObject(playerBefore.EquipedWeapon, JsonSetting), JsonConvert.SerializeObject(playerAfter.EquipedWeapon, JsonSetting));
+
+            File.Delete("TestJSON.json");
         }
+
+        [TestMethod]
+        public void CreatePlayerXML_SaveFile_ReadPlayerFromXMLFile()
+        {
+            Player playerBefore = Player.CreateDefaultPlayer();
+            playerBefore.AddExperiencePoints(670);
+            playerBefore.Gold = 500;
+            playerBefore.AddItemToInventory(World.ItemByID(World.ITEM_ID_ADVENTURER_PASS));
+            playerBefore.GiveQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
+            playerBefore.EquipedWeapon = (Weapon)World.ItemByID(World.ITEM_ID_RUSTY_SWORD);
+            playerBefore.MoveTo(World.LocationByID(World.LOCATION_ID_BRIDGE));
+
+            File.WriteAllText("TestXML.xml", playerBefore.ToXMLString());
+
+            Player playerAfter = Player.CreatePlayerFromXMLString(File.ReadAllText("TestXML.xml"));
+
+            Assert.AreEqual(playerBefore.ExperiencePoints, playerAfter.ExperiencePoints);
+            Assert.AreEqual(playerBefore.MaximumHitPoints, playerAfter.MaximumHitPoints);
+            Assert.AreEqual(playerBefore.Gold, playerAfter.Gold);
+            Assert.AreEqual(playerBefore.CurrentLocation, playerAfter.CurrentLocation);
+            Assert.AreEqual(JsonConvert.SerializeObject(playerBefore.Inventory, JsonSetting), JsonConvert.SerializeObject(playerAfter.Inventory, JsonSetting));
+            Assert.AreEqual(JsonConvert.SerializeObject(playerBefore.Quests, JsonSetting), JsonConvert.SerializeObject(playerAfter.Quests, JsonSetting));
+            Assert.AreEqual(JsonConvert.SerializeObject(playerBefore.EquipedWeapon, JsonSetting), JsonConvert.SerializeObject(playerAfter.EquipedWeapon, JsonSetting));
+
+            File.Delete("TestXML.json");
+        }
+
+
     }
 }
