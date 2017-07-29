@@ -489,6 +489,12 @@ namespace Engine
 
         public void UseWeapon(Weapon weapon)
         {
+            if (_currentMonster == null)
+            {
+                RaiseMessage($"No monsters at this location to attack");
+                return;
+            }
+
             int damageToMonster = RandomNumberGenerator.NumberBetween(weapon.MinimumDamage, weapon.MaximumDamage);
 
             _currentMonster.CurrentHitPoints -= damageToMonster;
@@ -512,6 +518,12 @@ namespace Engine
 
         public void UsePotion(HealingPotion potion)
         {
+            if (CurrentHitPoints == MaximumHitPoints)
+            {
+                RaiseMessage($"You are already at full health");
+                return;
+            }
+
             CurrentHitPoints = (CurrentHitPoints + potion.AmountToHeal);
 
             if (CurrentHitPoints > MaximumHitPoints)
@@ -520,13 +532,16 @@ namespace Engine
             RemoveItemFromInventory(potion, 1);
 
             RaiseMessage($"You drink a {potion.Name}");
-
+            
             AttackedByMonster(_currentMonster);
         }
 
 
         public void AttackedByMonster(Monster monster)
         {
+            if (monster == null)
+                throw new ArgumentNullException();
+
             int damageToPlayer = RandomNumberGenerator.NumberBetween(0, monster.MaximumDamage);
 
             RaiseMessage($"The {monster.Name} did {damageToPlayer} points of damage.");

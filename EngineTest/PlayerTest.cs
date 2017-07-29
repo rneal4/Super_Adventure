@@ -168,8 +168,71 @@ namespace EngineTest
             player.CompleteQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
 
             Assert.IsTrue(player.Quests.SingleOrDefault(x => x.Details.ID == World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).IsCompleted);
-            Assert.AreEqual(player.Inventory.SingleOrDefault(x => x.Details.ID == World.ITEM_ID_RAT_TAIL).Quantity, 2);
+            Assert.AreEqual(2, player.Inventory.SingleOrDefault(x => x.Details.ID == World.ITEM_ID_RAT_TAIL).Quantity);
             Assert.IsTrue(player.Inventory.Any(x => x.Details.ID == World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).RewardItem.ID));
+        }
+
+        [TestMethod]
+        public void MoveToByDirect_MoveSuccesful()
+        {
+            Player player = Player.CreateDefaultPlayer();
+            player.AddItemToInventory(World.ItemByID(World.ITEM_ID_ADVENTURER_PASS));
+            player.MoveTo(World.LocationByID(World.LOCATION_ID_GUARD_POST));
+
+            player.MoveTo(Location.Direction.West);
+
+            Assert.AreEqual(World.LocationByID(World.LOCATION_ID_TOWN_SQUARE), player.CurrentLocation);
+
+            player.MoveTo(Location.Direction.South);
+
+            Assert.AreEqual(World.LocationByID(World.LOCATION_ID_HOME), player.CurrentLocation);
+
+            player.MoveTo(Location.Direction.North);
+
+            Assert.AreEqual(World.LocationByID(World.LOCATION_ID_TOWN_SQUARE), player.CurrentLocation);
+
+            player.MoveTo(Location.Direction.East);
+
+            Assert.AreEqual(World.LocationByID(World.LOCATION_ID_GUARD_POST), player.CurrentLocation);
+        }
+
+        [TestMethod]
+        public void UseWeapon_EveryoneLives()
+        {
+            Player player = Player.CreateDefaultPlayer();
+            player.AddExperiencePoints(670);
+            player.Gold = 500;
+            player.AddItemToInventory(World.ItemByID(World.ITEM_ID_ADVENTURER_PASS));
+            player.GiveQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
+            player.EquipedWeapon = (Weapon)World.ItemByID(World.ITEM_ID_RUSTY_SWORD);
+            player.MoveTo(World.LocationByID(World.LOCATION_ID_SPIDER_FIELD));
+
+            player.UseWeapon(player.EquipedWeapon);
+
+            Assert.AreEqual(60, player.CurrentHitPoints, 10);
+            Monster monster = (Monster)player.GetPrivateField("_currentMonster");
+            Assert.AreEqual(8, monster.CurrentHitPoints, 3);
+        }
+
+        [TestMethod]
+        public void UseWeapon_MonsterDies_RewardsGiven()
+        {
+            Player player = Player.CreateDefaultPlayer();
+            player.AddExperiencePoints(670);
+            player.Gold = 500;
+            player.AddItemToInventory(World.ItemByID(World.ITEM_ID_ADVENTURER_PASS));
+            player.AddItemToInventory(World.ItemByID(World.ITEM_ID_CLUB));
+            player.GiveQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
+            player.EquipedWeapon = (Weapon)World.ItemByID(World.ITEM_ID_CLUB);
+            player.MoveTo(World.LocationByID(World.LOCATION_ID_ALCHEMISTS_GARDEN));
+
+            Monster monster = (Monster)player.GetPrivateField("_currentMonster");
+            player.UseWeapon(player.EquipedWeapon);
+
+            Assert.AreEqual(670 + monster.RewardExperiencePoints, player.ExperiencePoints);
+            Assert.AreEqual(500 + monster.RewardGold, player.Gold);
+            var result = player.Inventory.Where(pi => monster.LootTable.Any(mlt => pi.Details.ID == mlt.Details.ID)).Count();
+            Assert.AreNotSame(0, result);
         }
     }
 }
