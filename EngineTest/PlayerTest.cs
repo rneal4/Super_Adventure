@@ -43,6 +43,7 @@ namespace EngineTest
             };
 
             player.AddExperiencePoints(12);
+
             Assert.AreEqual(2, receivedEvents.Count);
             Assert.AreEqual(nameof(Player.ExperiencePoints), receivedEvents[0]);
             Assert.AreEqual(nameof(Player.Level), receivedEvents[1]);
@@ -102,7 +103,7 @@ namespace EngineTest
             Assert.AreEqual(10, player.MaximumHitPoints);
             Assert.AreEqual(20, player.Gold);
             Assert.AreEqual(0, player.ExperiencePoints);
-            Assert.IsTrue(player.Inventory.Any(ii => ii.Details.ID == World.ITEM_ID_RUSTY_SWORD));
+            Assert.IsTrue(player.Inventory.Any(ii => ii.ItemID == World.ITEM_ID_RUSTY_SWORD));
             Assert.AreEqual(World.LocationByID(World.LOCATION_ID_HOME), player.CurrentLocation);
         }
 
@@ -168,8 +169,8 @@ namespace EngineTest
             player.CompleteQuest(World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN));
 
             Assert.IsTrue(player.Quests.SingleOrDefault(x => x.Details.ID == World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).IsCompleted);
-            Assert.AreEqual(2, player.Inventory.SingleOrDefault(x => x.Details.ID == World.ITEM_ID_RAT_TAIL).Quantity);
-            Assert.IsTrue(player.Inventory.Any(x => x.Details.ID == World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).RewardItem.ID));
+            Assert.AreEqual(2, player.Inventory.SingleOrDefault(x => x.ItemID == World.ITEM_ID_RAT_TAIL).Quantity);
+            Assert.IsTrue(player.Inventory.Any(x => x.ItemID == World.QuestByID(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN).RewardItem.ID));
         }
 
         [TestMethod]
@@ -231,7 +232,7 @@ namespace EngineTest
 
             Assert.AreEqual(670 + monster.RewardExperiencePoints, player.ExperiencePoints);
             Assert.AreEqual(500 + monster.RewardGold, player.Gold);
-            var result = player.Inventory.Where(pi => monster.LootTable.Any(mlt => pi.Details.ID == mlt.Details.ID)).Count();
+            var result = player.Inventory.Where(pi => monster.LootTable.Any(mlt => pi.ItemID == mlt.Details.ID)).Count();
             Assert.AreNotSame(0, result);
         }
     }

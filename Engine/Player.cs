@@ -157,7 +157,7 @@ namespace Engine
             if (!location.RequiresItem)
                 return true;
 
-            return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
+            return Inventory.Any(ii => ii.ItemID == location.ItemRequiredToEnter.ID);
         }
 
 
@@ -212,7 +212,7 @@ namespace Engine
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                if (!Inventory.Any(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
+                if (!Inventory.Any(ii => ii.ItemID == qci.Details.ID && ii.Quantity >= qci.Quantity))
                     return false;
             }
 
@@ -223,7 +223,7 @@ namespace Engine
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == qci.Details.ID);
+                InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == qci.Details.ID);
 
                 if (item != null)
                     RemoveItemFromInventory(item.Details, qci.Quantity);
@@ -235,7 +235,7 @@ namespace Engine
 
         public void AddItemToInventory(Item itemToAdd, int quantity = 1)
         {
-            InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToAdd.ID);
+            InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == itemToAdd.ID);
 
             if (item == null)
                 Inventory.Add(new InventoryItem(itemToAdd, quantity));
@@ -247,7 +247,7 @@ namespace Engine
 
         public void RemoveItemFromInventory(Item itemToRemove, int quantuty = 1)
         {
-            InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToRemove.ID);
+            InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == itemToRemove.ID);
 
             if (item != null)
             {
@@ -337,7 +337,7 @@ namespace Engine
                 XmlNode inventoryItem = playerData.CreateElement("InventoryItem");
 
                 XmlAttribute idAttribute = playerData.CreateAttribute("ID");
-                idAttribute.Value = item.Details.ID.ToString();
+                idAttribute.Value = item.ItemID.ToString();
                 inventoryItem.Attributes.Append(idAttribute);
 
                 XmlAttribute quantityAttribute = playerData.CreateAttribute("Quantity");

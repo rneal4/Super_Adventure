@@ -200,7 +200,7 @@ namespace Engine
                             insertInventoryCommand.CommandText = "INSERT INTO Inventory (inventoryItemID, Quantity) VALUES (@inventoryItemID, @Quantity)";
 
                             insertInventoryCommand.Parameters.Add("@inventoryItemID", SqlDbType.Int);
-                            insertInventoryCommand.Parameters["@inventoryItemID"].Value = inventoryItem.Details.ID;
+                            insertInventoryCommand.Parameters["@inventoryItemID"].Value = inventoryItem.ItemID;
                             insertInventoryCommand.Parameters.Add("@Quantity", SqlDbType.Int);
                             insertInventoryCommand.Parameters["@Quantity"].Value = inventoryItem.Quantity;
 

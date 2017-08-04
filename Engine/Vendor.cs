@@ -16,7 +16,7 @@ namespace Engine
 
         public void AddItemToInventory(Item itemToAdd, int quantity = 1)
         {
-            InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToAdd.ID);
+            InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == itemToAdd.ID);
 
             if (item == null)
                 Inventory.Add(new InventoryItem(itemToAdd, quantity));
@@ -28,7 +28,7 @@ namespace Engine
 
         public void RemoveItemFromInventory(Item itemToRemove, int quantity = 1)
         {
-            InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToRemove.ID);
+            InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == itemToRemove.ID);
 
             if (item != null)
             {
