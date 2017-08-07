@@ -54,6 +54,8 @@
     <Compile Include="PlayerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="InventoryItemTest.cs" />
+    <Compile Include="ItemTest.cs" />
+    <Compile Include="LivingCreateTest.cs" />
     <Compile Include="UnitTestExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
