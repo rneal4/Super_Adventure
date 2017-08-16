@@ -56,6 +56,7 @@
     <Compile Include="InventoryItemTest.cs" />
     <Compile Include="ItemTest.cs" />
     <Compile Include="LivingCreateTest.cs" />
+    <Compile Include="PlayerQuestTest.cs" />
     <Compile Include="UnitTestExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
