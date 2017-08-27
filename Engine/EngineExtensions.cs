@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    public static class EngineExtensionMethods
+    public static class PlayerExtensions
     {
         #region Player
 
