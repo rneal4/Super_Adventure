@@ -33,15 +33,15 @@ namespace Engine
 
         public string Description => Quantity > 1 ? Details.NamePlural : Details.Name;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public InventoryItem(Item details, int quantity)
         {
             Details = details;
             Quantity = quantity;
         }
 
-        protected void OnPropertyChanged(string name)
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

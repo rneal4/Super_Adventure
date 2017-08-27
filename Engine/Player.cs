@@ -556,14 +556,6 @@ namespace Engine
             }
         }
 
-
-        public event EventHandler<MessageEventArgs> OnMessage;
-
-        private void RaiseMessage(string message)
-        {
-            OnMessage?.Invoke(this, new MessageEventArgs(message));
-        }
-
         private void RaiseInventoryChangedEvent(Item item)
         {
             if (item is Weapon)
@@ -573,5 +565,11 @@ namespace Engine
                 OnPropertyChanged(nameof(Potions));
         }
 
+        public event EventHandler<MessageEventArgs> OnMessage;
+
+        protected virtual void RaiseMessage(string message)
+        {
+            OnMessage?.Invoke(this, new MessageEventArgs(message));
+        }
     }
 }
