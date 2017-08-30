@@ -15,7 +15,7 @@ namespace Engine
             }
         }
 
-        public int MaximumHitPoints { get; set; }
+        public int MaximumHitPoints { get; protected set; }
 
         public bool IsDead => CurrentHitPoints <= 0;
 
@@ -27,7 +27,7 @@ namespace Engine
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string name)
+        protected virtual void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

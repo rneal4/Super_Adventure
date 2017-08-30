@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using static Engine.Location;
 
 namespace Engine
 {
@@ -38,7 +40,7 @@ namespace Engine
         public Location CurrentLocation
         {
             get { return _currentLocation; }
-            set
+            private set
             {
                 _currentLocation = value;
                 OnPropertyChanged(nameof(CurrentLocation));
@@ -134,13 +136,14 @@ namespace Engine
                 return Player.CreateDefaultPlayer();
             }
         }
-
-        //TODO Add CreatePlayerFromJSON
+        
         public static Player CreatePlryerFromJSONString(string json)
         {
-            Player player = JsonConvert.DeserializeObject<Player>(json);
+            Player player = JsonConvert.DeserializeObject<Player>(json, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, TypeNameHandling = TypeNameHandling.All });
 
-            player.MoveTo(World.LocationByID(player.CurrentLocation.ID));
+            int currentLocationID = JToken.Parse(json).SelectTokens("..CurrentLocation").Select(x => x.ToObject<Location>()).Select(x => x.ID).First();
+
+            player.MoveTo(World.LocationByID(currentLocationID));
 
             return player;
         }
@@ -154,7 +157,7 @@ namespace Engine
             if (!location.RequiresItem)
                 return true;
 
-            return Inventory.Any(ii => ii.Details.ID == location.ItemRequiredToEnter.ID);
+            return Inventory.Any(ii => ii.ItemID == location.ItemRequiredToEnter.ID);
         }
 
 
@@ -209,7 +212,7 @@ namespace Engine
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                if (!Inventory.Any(ii => ii.Details.ID == qci.Details.ID && ii.Quantity >= qci.Quantity))
+                if (!Inventory.Any(ii => ii.ItemID == qci.Details.ID && ii.Quantity >= qci.Quantity))
                     return false;
             }
 
@@ -220,7 +223,7 @@ namespace Engine
         {
             foreach (QuestCompletionItem qci in quest.QuestCompletionItems)
             {
-                InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == qci.Details.ID);
+                InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == qci.Details.ID);
 
                 if (item != null)
                     RemoveItemFromInventory(item.Details, qci.Quantity);
@@ -232,7 +235,7 @@ namespace Engine
 
         public void AddItemToInventory(Item itemToAdd, int quantity = 1)
         {
-            InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToAdd.ID);
+            InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == itemToAdd.ID);
 
             if (item == null)
                 Inventory.Add(new InventoryItem(itemToAdd, quantity));
@@ -244,7 +247,7 @@ namespace Engine
 
         public void RemoveItemFromInventory(Item itemToRemove, int quantuty = 1)
         {
-            InventoryItem item = Inventory.SingleOrDefault(ii => ii.Details.ID == itemToRemove.ID);
+            InventoryItem item = Inventory.SingleOrDefault(ii => ii.ItemID == itemToRemove.ID);
 
             if (item != null)
             {
@@ -263,10 +266,12 @@ namespace Engine
 
         public void AddExperiencePoints(int experiencePointsToAdd)
         {
+            if (experiencePointsToAdd < 0)
+                throw new ArgumentException("Must be Positive", "experiencePointsToAdd");
+
             ExperiencePoints += experiencePointsToAdd;
             MaximumHitPoints = (Level * 10);
         }
-
 
         public void SetMonsterFromLocation(Location location)
         {
@@ -332,7 +337,7 @@ namespace Engine
                 XmlNode inventoryItem = playerData.CreateElement("InventoryItem");
 
                 XmlAttribute idAttribute = playerData.CreateAttribute("ID");
-                idAttribute.Value = item.Details.ID.ToString();
+                idAttribute.Value = item.ItemID.ToString();
                 inventoryItem.Attributes.Append(idAttribute);
 
                 XmlAttribute quantityAttribute = playerData.CreateAttribute("Quantity");
@@ -365,7 +370,7 @@ namespace Engine
 
         public string ToJSONString()
         {
-            return JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore } );
+            return JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, TypeNameHandling = TypeNameHandling.All });
         }
 
 
@@ -421,34 +426,40 @@ namespace Engine
             RaiseMessage("");
         }
 
-
-        public void MoveNorth()
-        {
-            if (CurrentLocation.LocationToNorth != null)
-                MoveTo(CurrentLocation.LocationToNorth);
-        }
-
-        public void MoveEast()
-        {
-            if (CurrentLocation.LocationToEast != null)
-                MoveTo(CurrentLocation.LocationToEast);
-        }
-
-        public void MoveSouth()
-        {
-            if (CurrentLocation.LocationToSouth != null)
-                MoveTo(CurrentLocation.LocationToSouth);
-        }
-
-        public void MoveWest()
-        {
-            if (CurrentLocation.LocationToWest != null)
-                MoveTo(CurrentLocation.LocationToWest);
-        }
-
         private void MoveHome()
         {
             MoveTo(World.LocationByID(World.LOCATION_ID_HOME));
+        }
+
+        public void MoveTo(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.North:
+                    if (CurrentLocation.LocationToNorth != null)
+                         MoveTo(CurrentLocation.LocationToNorth);
+                    else
+                        RaiseMessage($"There is nothing {Direction.North}");
+                    break;
+                case Direction.East:
+                    if (CurrentLocation.LocationToEast != null)
+                        MoveTo(CurrentLocation.LocationToEast);
+                    else
+                        RaiseMessage($"There is nothing {Direction.East}");
+                    break;
+                case Direction.South:
+                    if (CurrentLocation.LocationToSouth != null)
+                        MoveTo(CurrentLocation.LocationToSouth);
+                    else
+                        RaiseMessage($"There is nothing {Direction.South}");
+                    break;
+                case Direction.West:
+                    if (CurrentLocation.LocationToWest != null)
+                        MoveTo(CurrentLocation.LocationToWest);
+                    else
+                        RaiseMessage($"There is nothing {Direction.West}");
+                    break;
+            }
         }
 
         public void MoveTo(Location location)
@@ -476,12 +487,14 @@ namespace Engine
             SetMonsterFromLocation(location);
         }
 
-
-        //TODO Something
-
-
         public void UseWeapon(Weapon weapon)
         {
+            if (_currentMonster == null)
+            {
+                RaiseMessage($"No monsters at this location to attack");
+                return;
+            }
+
             int damageToMonster = RandomNumberGenerator.NumberBetween(weapon.MinimumDamage, weapon.MaximumDamage);
 
             _currentMonster.CurrentHitPoints -= damageToMonster;
@@ -505,6 +518,12 @@ namespace Engine
 
         public void UsePotion(HealingPotion potion)
         {
+            if (CurrentHitPoints == MaximumHitPoints)
+            {
+                RaiseMessage($"You are already at full health");
+                return;
+            }
+
             CurrentHitPoints = (CurrentHitPoints + potion.AmountToHeal);
 
             if (CurrentHitPoints > MaximumHitPoints)
@@ -513,13 +532,16 @@ namespace Engine
             RemoveItemFromInventory(potion, 1);
 
             RaiseMessage($"You drink a {potion.Name}");
-
+            
             AttackedByMonster(_currentMonster);
         }
 
 
         public void AttackedByMonster(Monster monster)
         {
+            if (monster == null)
+                throw new ArgumentNullException();
+
             int damageToPlayer = RandomNumberGenerator.NumberBetween(0, monster.MaximumDamage);
 
             RaiseMessage($"The {monster.Name} did {damageToPlayer} points of damage.");
@@ -534,14 +556,6 @@ namespace Engine
             }
         }
 
-
-        public event EventHandler<MessageEventArgs> OnMessage;
-
-        private void RaiseMessage(string message)
-        {
-            OnMessage?.Invoke(this, new MessageEventArgs(message));
-        }
-
         private void RaiseInventoryChangedEvent(Item item)
         {
             if (item is Weapon)
@@ -551,5 +565,11 @@ namespace Engine
                 OnPropertyChanged(nameof(Potions));
         }
 
+        public event EventHandler<MessageEventArgs> OnMessage;
+
+        protected virtual void RaiseMessage(string message)
+        {
+            OnMessage?.Invoke(this, new MessageEventArgs(message));
+        }
     }
 }

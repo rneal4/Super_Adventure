@@ -1,8 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Engine;
+using static Engine.Location;
+using static Engine.Player;
 
 namespace SuperAdventureConsole
 {
@@ -33,7 +36,7 @@ namespace SuperAdventureConsole
                 if (string.IsNullOrWhiteSpace(userInput))
                     continue;
 
-                string cleanedInput = userInput.ToLower();
+                string cleanedInput = userInput.ToLower().Trim();
 
                 if (cleanedInput == "exit")
                 {
@@ -96,33 +99,11 @@ namespace SuperAdventureConsole
             {
                 DisplayCurrentLocation();
             }
-            else if (input.Contains("north"))
+            else if (input == "north" || input == "east" || input == "south" || input == "west")
             {
-                if (_player.CurrentLocation.LocationToNorth == null)
-                    Console.WriteLine("You cannot move North");
-                else
-                    _player.MoveNorth();
-            }
-            else if (input.Contains("east"))
-            {
-                if (_player.CurrentLocation.LocationToEast == null)
-                    Console.WriteLine("You cannot move East");
-                else
-                    _player.MoveEast();
-            }
-            else if (input.Contains("south"))
-            {
-                if (_player.CurrentLocation.LocationToSouth == null)
-                    Console.WriteLine("You cannot move South");
-                else
-                    _player.MoveSouth();
-            }
-            else if (input.Contains("west"))
-            {
-                if (_player.CurrentLocation.LocationToWest == null)
-                    Console.WriteLine("You cannot move West");
-                else
-                    _player.MoveWest();
+                TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+                Direction direction = (Direction)Enum.Parse(typeof(Direction), textInfo.ToTitleCase(input));
+                _player.MoveTo(direction);
             }
             else if (input == "inventory")
             {

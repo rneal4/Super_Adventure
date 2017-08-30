@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Engine;
+using static Engine.Location;
+using static Engine.Player;
 
 namespace SuperAdventure
 {
@@ -82,24 +84,14 @@ namespace SuperAdventure
             _player.MoveTo(_player.CurrentLocation);
         }
 
-        private void btnNorth_Click(object sender, EventArgs e)
+        private void Move_Click(object sender, EventArgs e)
         {
-            _player.MoveNorth();
-        }
-
-        private void btnEast_Click(object sender, EventArgs e)
-        {
-            _player.MoveEast();
-        }
-
-        private void btnSouth_Click(object sender, EventArgs e)
-        {
-            _player.MoveSouth();
-        }
-
-        private void btnWest_Click(object sender, EventArgs e)
-        {
-            _player.MoveWest();
+            if (sender is Button)
+            {
+                Button button = sender as Button;
+                if (button.Tag is Direction)
+                    _player.MoveTo((Direction)button.Tag);
+            }
         }
 
         private void btnUseWeapon_Click(object sender, EventArgs e)

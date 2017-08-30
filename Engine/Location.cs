@@ -3,8 +3,8 @@
     public class Location
     {
         public int ID { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; private set; }
+        public string Description { get; private set; }
         public Item ItemRequiredToEnter { get; set; }
         public Quest QuestAvailableHere { get; set; }
         public Monster MonsterLivingHere { get; set; }
@@ -18,6 +18,14 @@
         public bool HasQuest => QuestAvailableHere != null;
         public bool MonsterIsHere => MonsterLivingHere != null;
         public bool VendorIsHere => VendorWorkingHere != null;
+        
+        public enum Direction
+        {
+            North,
+            East,
+            South,
+            West
+        }
 
         public Location(int id, string name, string description,
             Item itemRequiredToEnter = null,
